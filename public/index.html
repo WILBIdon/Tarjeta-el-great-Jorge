@@ -689,18 +689,87 @@
             position: relative;
             overflow: hidden;
             opacity: 0;
-            transform: translateY(15px);
-            /* Las mismas animaciones del botón de "abrir sobre", no variantes */
+            /* Entra con opacidad, y luego le toca su turno de encenderse.
+               La entrada no toca transform a propósito: así btnTurno se queda
+               con él para hacerlos crecer sin pelearse por la misma propiedad. */
             animation: btnReveal 0.8s ease forwards,
-                       btnPulse 2.8s ease-in-out infinite;
+                       btnTurno 5.2s ease-in-out infinite;
+            /* backwards en el turno: mientras espera su vez ya se muestra
+               apagado, en vez de salir a brillo pleno hasta que le toca */
+            animation-fill-mode: forwards, backwards;
         }
-        /* Escalonados, para que sea una ola y no un parpadeo al unísono */
-        .btn-gold:nth-child(1) { animation-delay: 1.00s, 0.2s; }
-        .btn-gold:nth-child(2) { animation-delay: 1.15s, 0.9s; }
-        .btn-gold:nth-child(3) { animation-delay: 1.30s, 1.6s; }
-        .btn-gold:nth-child(4) { animation-delay: 1.45s, 2.3s; }
 
-        @keyframes btnReveal { to { opacity: 1; transform: translateY(0); } }
+        /* EL TURNO: se encienden de uno en uno, no todos a la vez.
+           Ciclo de 5.2 s dividido en cuatro: a cada botón le toca 1.3 s.
+           Mientras uno brilla y crece, los otros tres quedan apagados — que
+           es lo que hace que se note la diferencia e invite a tocarlo. */
+        .btn-gold:nth-child(1) { animation-delay: 1.00s, 1.8s; }
+        .btn-gold:nth-child(2) { animation-delay: 1.15s, 3.1s; }
+        .btn-gold:nth-child(3) { animation-delay: 1.30s, 4.4s; }
+        .btn-gold:nth-child(4) { animation-delay: 1.45s, 5.7s; }
+
+        @keyframes btnReveal { to { opacity: 1; } }
+
+        /* El mismo turno, pero sin crecer: para quien pide menos movimiento */
+        @keyframes btnTurnoQuieto {
+            0%, 100%, 26% {
+                box-shadow: 0 0 8px rgba(212,175,55,0.08),
+                            inset 0 1px 0 rgba(255,255,255,0.05);
+                border-color: rgba(212,175,55,0.34);
+                filter: brightness(0.66);
+            }
+            7% {
+                box-shadow: 0 0 34px rgba(212,175,55,0.52),
+                            0 0 72px rgba(212,175,55,0.24),
+                            inset 0 1px 0 rgba(255,255,255,0.24);
+                border-color: rgba(247,227,156,1);
+                filter: brightness(1.15);
+            }
+            18% {
+                box-shadow: 0 0 30px rgba(212,175,55,0.44),
+                            0 0 64px rgba(212,175,55,0.20),
+                            inset 0 1px 0 rgba(255,255,255,0.20);
+                border-color: rgba(247,227,156,0.92);
+                filter: brightness(1.10);
+            }
+        }
+
+        @keyframes btnTurno {
+            /* apagado */
+            0%, 100% {
+                box-shadow: 0 0 8px rgba(212,175,55,0.08),
+                            inset 0 1px 0 rgba(255,255,255,0.05);
+                border-color: rgba(212,175,55,0.34);
+                filter: brightness(0.66);
+                transform: scale(1);
+            }
+            /* se enciende y crece */
+            7% {
+                box-shadow: 0 0 34px rgba(212,175,55,0.52),
+                            0 0 72px rgba(212,175,55,0.24),
+                            inset 0 1px 0 rgba(255,255,255,0.24);
+                border-color: rgba(247,227,156,1);
+                filter: brightness(1.15);
+                transform: scale(1.05);
+            }
+            /* sostiene su momento */
+            18% {
+                box-shadow: 0 0 30px rgba(212,175,55,0.44),
+                            0 0 64px rgba(212,175,55,0.20),
+                            inset 0 1px 0 rgba(255,255,255,0.20);
+                border-color: rgba(247,227,156,0.92);
+                filter: brightness(1.10);
+                transform: scale(1.04);
+            }
+            /* y se apaga para que le toque al siguiente */
+            26% {
+                box-shadow: 0 0 8px rgba(212,175,55,0.08),
+                            inset 0 1px 0 rgba(255,255,255,0.05);
+                border-color: rgba(212,175,55,0.34);
+                filter: brightness(0.66);
+                transform: scale(1);
+            }
+        }
 
         /* El doble filete interior, igual que en "abrir sobre" */
         .btn-gold::after {
@@ -711,19 +780,21 @@
             pointer-events: none;
         }
 
-        /* Y el mismo destello que lo cruza, con los mismos valores */
+        /* El destello que lo cruza. Más blanco que el del sobre: aquí pasa
+           por encima de un fondo ya dorado y con el oro original no contrasta.
+           Entra junto con el turno de cada botón. */
         .btn-gold::before {
             content: '';
             position: absolute;
             top: 0; left: -100%;
             width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.28), transparent);
-            animation: btnShimmer 3.2s ease-in-out infinite;
+            background: linear-gradient(90deg, transparent, rgba(255,252,235,0.55), transparent);
+            animation: btnShimmer 5.2s ease-in-out infinite;
         }
-        .btn-gold:nth-child(1)::before { animation-delay: 0.4s; }
-        .btn-gold:nth-child(2)::before { animation-delay: 1.2s; }
-        .btn-gold:nth-child(3)::before { animation-delay: 2.0s; }
-        .btn-gold:nth-child(4)::before { animation-delay: 2.8s; }
+        .btn-gold:nth-child(1)::before { animation-delay: 1.8s; }
+        .btn-gold:nth-child(2)::before { animation-delay: 3.1s; }
+        .btn-gold:nth-child(3)::before { animation-delay: 4.4s; }
+        .btn-gold:nth-child(4)::before { animation-delay: 5.7s; }
 
         /* Y el icono parpadea, como el del sobre */
         .btn-gold i { animation: iconTwinkle 2.4s ease-in-out infinite; }
@@ -1234,12 +1305,15 @@
                 transform: none !important;
                 animation: none !important;
             }
-            /* Los botones de la tarjeta no se desplazan, pero siguen respirando */
+            /* Los botones siguen tomando su turno, pero sin crecer */
             .btn-gold {
                 opacity: 1 !important;
-                transform: none !important;
-                animation: btnPulse 2.8s ease-in-out infinite !important;
+                animation: btnTurnoQuieto 5.2s ease-in-out infinite !important;
             }
+            .btn-gold:nth-child(1) { animation-delay: 1.8s !important; }
+            .btn-gold:nth-child(2) { animation-delay: 3.1s !important; }
+            .btn-gold:nth-child(3) { animation-delay: 4.4s !important; }
+            .btn-gold:nth-child(4) { animation-delay: 5.7s !important; }
             #screen-card.active, .modal-card { animation: none !important; }
 
             /* Nada de empujoncitos al pasar el dedo o el ratón */
