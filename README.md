@@ -132,9 +132,28 @@ El MP3 entero sigue en `originales/` por si algún día se quiere la intro.
 
 ## Despliegue en Railway
 
-1. Crea un nuevo proyecto en [Railway](https://railway.app)
-2. Conecta este repositorio
-3. Railway detecta `railway.json` y despliega solo
+Repositorio: https://github.com/WILBIdon/Tarjeta-el-great-Jorge
+
+1. En [Railway](https://railway.app) → **New Project** → *Deploy from GitHub repo*
+2. Elige `WILBIdon/Tarjeta-el-great-Jorge`
+3. No hay que configurar nada más: Railway lee `railway.json` y despliega.
+   **No hay variables de entorno que poner** — `PORT` la inyecta Railway sola.
+4. En *Settings → Networking* → **Generate Domain** para obtener la URL pública.
+
+Lo que ya está resuelto en el repo:
+
+| | |
+|---|---|
+| `railway.json` | Nixpacks, `node server.js`, healthcheck en `/` con 120 s |
+| `.nvmrc` | Node 20 LTS, para que cada build use la misma versión |
+| `server.js` | Escucha en `process.env.PORT` (Railway la asigna) |
+| Compresión | Brotli/gzip: el HTML viaja de 71.9 KB a **16.4 KB** |
+| Caché | HTML sin caché; videos, imágenes y música un año (`immutable`) |
+
+### Dominio propio
+
+En *Settings → Networking → Custom Domain*, y apuntar un CNAME del dominio al
+host que da Railway.
 
 ## Notas técnicas
 
