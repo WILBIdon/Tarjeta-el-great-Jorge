@@ -141,12 +141,14 @@ https://<la-url>/?diag=1
 
 ```
 pantalla   390x844  dpr 3
-lienzo     780x1688
-encendido  sí
+capa fx    existe
+encendida  sí
 display    block
+elementos  27  (chispas y cohetes vivos)
+anima CSS  sí
 menos mov. no
 fps        60
-pirotecnia animando
+arrancada  sí
 video1     mudo
 tarjeta    visible
 ```
@@ -154,13 +156,15 @@ tarjeta    visible
 Sin `?diag=1` el panel no existe, así que los invitados nunca lo ven.
 
 Qué mirar si la pirotecnia no aparece:
-- `menos mov. SÍ` → el teléfono pide menos movimiento (en iPhone **el modo de
-  bajo consumo lo activa solo**). Se ve el rocío dorado fijo en vez de los
-  estallidos: es a propósito.
-- `encendido NO` o `lienzo NO EXISTE` → el canvas no llegó a montarse.
-- `fps 0` → el navegador congeló las animaciones (pestaña en segundo plano,
+- `anima CSS NO` → el navegador no sabe animar; no es culpa de la pirotecnia.
+- `capa fx NO EXISTE` o `encendida NO` → la capa no llegó a montarse.
+- `elementos 0` siempre → no se están creando chispas; es un fallo real.
+- `elementos` sube y baja pero no se ve nada → se crean pero no se pintan:
+  mirar `display` y `z-index`.
+- `fps 0` → el navegador congeló las animaciones (pestaña en segundo plano o
   ahorro de batería).
-- `pirotecnia PARADA` con todo lo demás bien → el bucle murió; es un fallo real.
+- `menos mov. SÍ` → versión serena a propósito (en iPhone **el modo de bajo
+  consumo activa esa preferencia solo**).
 
 ## Despliegue en Railway
 
@@ -194,19 +198,20 @@ host que da Railway.
 - Responsive de 320 px a escritorio, con ajustes para notch y horizontal.
 - Respeta `prefers-reduced-motion`, pero **sin dejar la invitación muda**:
   se apagan los bucles decorativos (pulsos, destellos, brillos, el reloj) y la
-  pirotecnia pasa a un rocío dorado fijo, sin nada que se mueva ni parpadee.
+  pirotecnia **se serena en vez de apagarse** — estallidos lentos y cortos, sin
+  cohetes cruzando la pantalla.
   Los **fundidos de opacidad se conservan a propósito**: un fundido es el
   reemplazo recomendado del movimiento, no movimiento del que protegerse.
   Importante: en iPhone, el **modo de bajo consumo activa esa preferencia solo**,
   así que ahí cae mucha gente sin haberlo pedido.
-- Pirotecnia en `<canvas>`: cohetes que suben decelerando y revientan en oro.
-  Tocar la tarjeta lanza uno extra. Se dibuja **solo con primitivas que no
-  fallan en ningún móvil** (`clearRect` + `source-over` + `globalAlpha`): nada
-  de `lighter`, `destination-out` ni `shadowBlur`, que se ven preciosos en
-  escritorio pero se caen en muchas GPU de Android. El halo sale de un doble
-  trazo (ancho y tenue + fino y vivo) y la estela de un desenfoque de
-  movimiento. El canvas cuelga del `<body>`, no de la tarjeta, porque la
-  tarjeta tiene un `transform` y eso reencuadra a los hijos `position: fixed`.
+- **Pirotecnia con animación CSS sobre el DOM, no `<canvas>`.** Cada chispa es
+  un `<span>` con su propia animación. Es deliberado: la versión en canvas se
+  veía preciosa en escritorio y no aparecía en Chrome de Android, sin dar un
+  solo error. Las animaciones CSS corren en el **hilo compositor**, siguen
+  fluidas aunque el teléfono esté ocupado decodificando video, y no dependen de
+  `getContext`, ni de modos de composición, ni de límites de tamaño de lienzo,
+  ni de `devicePixelRatio`. Si esto no se ve, es que el navegador no sabe
+  animar nada. Tocar la tarjeta lanza un cohete extra.
 - El primer video arranca **mudo en móvil**: ningún navegador deja sonar audio
   sin un toque previo del usuario. Cuando pasa, aparece *"Toca para el sonido"*
   y basta tocar en cualquier punto del video. Ese toque además desbloquea el
