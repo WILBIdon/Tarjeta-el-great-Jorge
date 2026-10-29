@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Great Jorge Eduardo · 5 de Diciembre</title>
+    <meta name="description" content="Acompáñame a celebrar mi cumpleaños — Jorge Eduardo Lopreto Botero · Sábado 5 de Diciembre · Bárbaro Cocina Primitiva, Rionegro">
+
+    <!-- Open Graph / WhatsApp Preview -->
+    <meta property="og:title" content="Esta es una invitación especial para ti ✨">
+    <meta property="og:description" content="Jorge Eduardo te invita a celebrar su cumpleaños 🥂 Sábado, 5 de Diciembre · 6:00 PM · Bárbaro Cocina Primitiva, Rionegro">
+    <meta property="og:image" content="/og-image.jpg">
+    <meta property="og:image:width" content="560">
+    <meta property="og:image:height" content="1003">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card (también sirve para iMessage) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Esta es una invitación especial para ti ✨">
+    <meta name="twitter:description" content="Jorge Eduardo te invita a celebrar su cumpleaños 🥂 Sábado, 5 de Diciembre · 6:00 PM · Bárbaro Cocina Primitiva, Rionegro">
+    <meta name="twitter:image" content="/og-image.jpg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- PRECARGA: la imagen de portada primero -->
+    <link rel="preload" href="fondo-gatsby.webp?v=1" as="image" type="image/webp" fetchpriority="high">
+
+    <style>
+        :root {
+            --gold-light: #f7e39c;
+            --gold-mid:   #d4af37;
+            --gold-dark:  #8c6d1f;
+            --ink:        #060504;
+            --panel:      rgba(8, 6, 3, 0.52);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body, html {
+            margin: 0; padding: 0;
+            min-height: 100%;
+            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            background: var(--ink);
+        }
+
+        .font-deco  { font-family: 'Cinzel', serif; }
+        .font-serif { font-family: 'Cormorant Garamond', serif; }
+
+        /* ═══════════════════════════════════
+           PANTALLAS DE APERTURA
+           reloj → video 1 → sobre → video 2 → tarjeta
+        ═══════════════════════════════════ */
+        .pantalla {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            opacity: 1;
+            transition: opacity 0.7s ease;
+        }
+        .pantalla.activa   { display: flex; }
+        .pantalla.saliendo { opacity: 0; pointer-events: none; }
+
+        #screen-loader { z-index: 9400; flex-direction: column; background: var(--ink); }
+        #screen-v1     { z-index: 9300; }
+        #screen-sobre  { z-index: 9200; flex-direction: column; justify-content: flex-end; }
+        #screen-v2     { z-index: 9100; }
+
+        .video-full {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+
+        /* ═══ RELOJ DE ARENA (precarga) ═══ */
+        .reloj { width: 68px; height: 102px; overflow: visible; }
+
+        .reloj-cuerpo {
+            transform-box: fill-box;
+            transform-origin: 50% 50%;
+            animation: relojGirar 3s ease-in-out infinite;
+        }
+        .cristal {
+            fill: none;
+            stroke: var(--gold-mid);
+            stroke-width: 2.2;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+        .tapa  { fill: var(--gold-mid); }
+        .arena { fill: var(--gold-light); transform-box: fill-box; }
+
+        /* La de arriba se vacía hacia su vértice; la de abajo se llena desde la base */
+        .arena-arriba { transform-origin: 50% 100%; animation: relojVaciar 3s linear infinite; }
+        .arena-abajo  { transform-origin: 50% 100%; animation: relojLlenar 3s linear infinite; }
+
+        .hilo {
+            fill: var(--gold-light);
+            transform-box: fill-box;
+            animation: relojHilo 3s linear infinite;
+        }
+
+        @keyframes relojVaciar { 0% { transform: scaleY(1); }  78%, 100% { transform: scaleY(0); } }
+        @keyframes relojLlenar { 0% { transform: scaleY(0); }  78%, 100% { transform: scaleY(1); } }
+        @keyframes relojHilo   { 0%, 70% { opacity: 0.8; }     80%, 100% { opacity: 0; } }
+        @keyframes relojGirar  { 0%, 80% { transform: rotate(0deg); } 94%, 100% { transform: rotate(180deg); } }
+
+        .loader-texto {
+            margin-top: 1.9rem;
+            font-family: 'Cinzel', serif;
+            font-size: 0.64rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: rgba(212,175,55,0.7);
+        }
+
+        .loader-barra {
+            margin-top: 1rem;
+            width: 148px; height: 1px;
+            background: rgba(212,175,55,0.18);
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-barra span {
+            position: absolute; top: 0; left: 0;
+            height: 100%; width: 0%;
+            background: linear-gradient(to right, var(--gold-dark), var(--gold-light));
+            transition: width 0.4s ease;
+        }
+        /* Mientras no se sabe el progreso real, un vaivén */
+        .loader-barra.indeterminada span {
+            width: 36%;
+            animation: barraVaiven 1.6s ease-in-out infinite;
+        }
+        @keyframes barraVaiven {
+            0%   { left: -36%; }
+            100% { left: 100%; }
+        }
+
+        /* ═══ PANTALLA DEL SOBRE ═══ */
+        .sobre-img {
+            position: absolute;
+            inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center 40%;
+        }
+        /* Velo inferior para que el botón se lea sobre la imagen */
+        #screen-sobre::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 100%; height: 48%;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.35) 45%, transparent 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* ═══ BOTÓN DORADO (abrir sobre) ═══ */
+        .btn-enter {
+            position: relative;
+            z-index: 10;
+            margin-bottom: 14vh;
+            padding: 18px 48px;
+            border: 1px solid var(--gold-mid);
+            border-radius: 2px;
+            background: linear-gradient(135deg, rgba(140,109,31,0.35) 0%, rgba(212,175,55,0.14) 50%, rgba(140,109,31,0.35) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--gold-light);
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow:
+                0 0 30px rgba(212,175,55,0.25),
+                0 0 60px rgba(212,175,55,0.10),
+                inset 0 1px 0 rgba(255,255,255,0.14);
+            animation: btnPulse 2.8s ease-in-out infinite, btnFloat 3.4s ease-in-out infinite;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        /* Doble filete art déco */
+        .btn-enter::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(247,227,156,0.35);
+            pointer-events: none;
+        }
+        .btn-enter::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.28), transparent);
+            animation: btnShimmer 3.2s ease-in-out infinite;
+        }
+        .btn-enter:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 0 40px rgba(212,175,55,0.4),
+                0 0 80px rgba(212,175,55,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.2);
+            border-color: var(--gold-light);
+        }
+        .btn-enter:active { transform: translateY(0) scale(0.98); }
+        .btn-enter i {
+            margin-right: 10px;
+            font-size: 0.85rem;
+            animation: iconTwinkle 2.4s ease-in-out infinite;
+        }
+
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(212,175,55,0.25), 0 0 60px rgba(212,175,55,0.10); }
+            50%      { box-shadow: 0 0 42px rgba(212,175,55,0.42), 0 0 80px rgba(212,175,55,0.16); }
+        }
+        @keyframes btnFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-6px); }
+        }
+        @keyframes btnShimmer {
+            0%        { left: -100%; }
+            50%, 100% { left: 100%; }
+        }
+        @keyframes iconTwinkle {
+            0%, 100% { opacity: 1;   transform: scale(1); }
+            50%      { opacity: 0.6; transform: scale(1.15); }
+        }
+
+        /* Destellos dorados alrededor del botón */
+        .sparkle-container {
+            position: absolute;
+            bottom: 12vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 120px;
+            pointer-events: none;
+            z-index: 9;
+        }
+        .sparkle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: var(--gold-light);
+            border-radius: 50%;
+            animation: sparkleFloat 3s ease-in-out infinite;
+            box-shadow: 0 0 6px var(--gold-mid);
+        }
+        .sparkle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .sparkle:nth-child(2) { left: 85%; top: 30%; animation-delay: 0.5s; }
+        .sparkle:nth-child(3) { left: 30%; top: 80%; animation-delay: 1s; }
+        .sparkle:nth-child(4) { left: 70%; top: 10%; animation-delay: 1.5s; }
+        .sparkle:nth-child(5) { left: 50%; top: 60%; animation-delay: 0.3s; }
+        .sparkle:nth-child(6) { left: 15%; top: 55%; animation-delay: 0.8s; }
+
+        @keyframes sparkleFloat {
+            0%, 100% { opacity: 0; transform: scale(0) translateY(0); }
+            50%      { opacity: 1; transform: scale(1) translateY(-15px); }
+        }
+
+        /* ═══ SALTAR VIDEO ═══ */
+        .btn-skip {
+            position: absolute;
+            bottom: 30px; right: 24px;
+            z-index: 10;
+            padding: 10px 24px;
+            border: 1px solid rgba(212,175,55,0.4);
+            border-radius: 2px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: rgba(255,255,255,0.7);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0;
+            animation: fadeInSkip 1s ease 2.5s forwards;
+        }
+        .btn-skip:hover {
+            background: rgba(212,175,55,0.15);
+            color: var(--gold-light);
+            border-color: var(--gold-light);
+        }
+        @keyframes fadeInSkip { to { opacity: 1; } }
+
+        /* ═══ FUNDIDO A NEGRO (video 2 → tarjeta) ═══ */
+        #fundido-negro {
+            position: fixed;
+            inset: 0;
+            z-index: 9500;
+            background: #000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.9s ease;
+        }
+        #fundido-negro.on { opacity: 1; }
+
+        /* ═══════════════════════════════════
+           SCREEN 3: TARJETA
+        ═══════════════════════════════════ */
+        #screen-card { display: none; }
+        #screen-card.active {
+            display: block;
+            animation: cardReveal 2s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        @keyframes cardReveal {
+            0%   { opacity: 0; transform: scale(0.97); }
+            40%  { opacity: 0.5; }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Fondo fijo: el marco art déco siempre visible */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url('fondo-gatsby.webp?v=1');
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-color: var(--ink);
+        }
+        /* Velo oscuro inferior para que el texto sobre el auto se lea */
+        .bg-layer::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 100%; height: 62%;
+            background: linear-gradient(to top, rgba(4,3,2,0.86) 0%, rgba(4,3,2,0.55) 45%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Espacio superior: deja respirar el título "THE GREAT JORGE EDUARDO" */
+        .spacer-top {
+            height: 31vh;
+            min-height: 165px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        /* ══ TARJETA ══ */
+        .card {
+            width: 84%;
+            max-width: 310px;
+            text-align: center;
+            padding-bottom: 2.5rem;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* ══ Animaciones escalonadas ══ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+            animation: revealUp 1s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        .reveal-d1 { animation-delay: 0.2s; }
+        .reveal-d2 { animation-delay: 0.5s; }
+        .reveal-d3 { animation-delay: 0.8s; }
+
+        @keyframes revealUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ══ BLOQUE PRINCIPAL ══ */
+        .name-box {
+            background: var(--panel);
+            padding: 1rem 0.9rem 1.1rem;
+            margin-bottom: 0.9rem;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            position: relative;
+            border-top: 1px solid rgba(212,175,55,0.45);
+            border-bottom: 1px solid rgba(212,175,55,0.45);
+        }
+        /* Filete interior art déco */
+        .name-box::after {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            border-top: 1px solid rgba(212,175,55,0.18);
+            border-bottom: 1px solid rgba(212,175,55,0.18);
+            pointer-events: none;
+        }
+        /* Aura dorada */
+        .name-box::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            background: radial-gradient(ellipse at center, rgba(212,175,55,0.14) 0%, transparent 70%);
+            animation: auraBreath 4.5s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes auraBreath {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50%      { opacity: 1;   transform: scale(1.05); }
+        }
+
+        .invite-line {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: rgba(255,255,255,0.86);
+            font-size: clamp(1.1rem, 5vw, 1.35rem);
+            line-height: 1.35;
+            margin: 0 0 0.75rem;
+        }
+
+
+        .text-gold {
+            background: linear-gradient(to right, var(--gold-light), var(--gold-mid), var(--gold-dark), var(--gold-light));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 5s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* ══ FECHA DESTACADA ══ */
+        .date-strip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 0.85rem;
+        }
+        .date-strip span.rule {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(212,175,55,0.55), transparent);
+        }
+        .date-strip span.txt {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: clamp(0.78rem, 3.4vw, 0.92rem);
+            letter-spacing: 3px;
+            white-space: nowrap;
+            text-transform: uppercase;
+        }
+
+        /* ══ ORNAMENTO ══ */
+        .deco-mark {
+            text-align: center;
+            margin: 0.3rem 0 0.6rem;
+            color: rgba(212,175,55,0.75);
+            font-size: 0.7rem;
+            letter-spacing: 6px;
+        }
+
+        /* ══ CITA ══ */
+        .quote-box {
+            background: rgba(8, 6, 3, 0.45);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-top: 1px solid rgba(212,175,55,0.25);
+            border-bottom: 1px solid rgba(212,175,55,0.25);
+            padding: 0.9rem 0.8rem;
+            margin: 0.7rem 0 0.2rem;
+            position: relative;
+        }
+        .quote-box::before,
+        .quote-box::after {
+            content: '';
+            position: absolute;
+            left: 15%; right: 15%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(247,227,156,0.5), transparent);
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+        .quote-box::before { top: -1px; }
+        .quote-box::after  { bottom: -1px; animation-delay: 1.5s; }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.3; transform: scaleX(0.7); }
+            50%      { opacity: 1;   transform: scaleX(1); }
+        }
+
+        /* ══ BOTONES ══ */
+        .btn-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            margin-top: 1.1rem;
+        }
+
+        .btn-gold {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            width: 100%;
+            padding: 0.82rem 1rem;
+            border-radius: 2px;
+            border: 1px solid rgba(212,175,55,0.55);
+            background: rgba(8, 6, 3, 0.55);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: var(--gold-light);
+            font-family: 'Cinzel', serif;
+            font-weight: 500;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(15px);
+            animation: btnReveal 0.8s ease forwards;
+        }
+        .btn-gold:nth-child(1) { animation-delay: 1.0s; }
+        .btn-gold:nth-child(2) { animation-delay: 1.15s; }
+        .btn-gold:nth-child(3) { animation-delay: 1.3s; }
+        .btn-gold:nth-child(4) { animation-delay: 1.45s; }
+
+        @keyframes btnReveal { to { opacity: 1; transform: translateY(0); } }
+
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.15), transparent);
+            transition: 0.6s;
+        }
+        .btn-gold:hover::before { left: 100%; }
+
+        .btn-gold:hover, .btn-gold:active {
+            background: rgba(212,175,55,0.18);
+            border-color: var(--gold-light);
+            box-shadow: 0 0 20px rgba(212,175,55,0.3), 0 0 40px rgba(212,175,55,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* ══ MODALES ══ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 300;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .modal-overlay.active { display: flex; }
+
+        @media (min-width: 560px) {
+            .modal-overlay { align-items: center; }
+        }
+
+        .modal-card {
+            background: linear-gradient(165deg, rgba(20, 15, 6, 0.97) 0%, rgba(8, 6, 3, 0.99) 100%);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-top: 2px solid rgba(212,175,55,0.5);
+            border-radius: 6px 6px 0 0;
+            padding: 1.9rem 1.4rem 2.3rem;
+            width: 100%;
+            max-width: 440px;
+            max-height: 92vh;
+            overflow-y: auto;
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1);
+            box-shadow:
+                0 -10px 60px rgba(0,0,0,0.6),
+                0 0 40px rgba(212,175,55,0.07),
+                inset 0 1px 0 rgba(212,175,55,0.18);
+        }
+
+        @media (min-width: 560px) {
+            .modal-card {
+                border-radius: 6px;
+                animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+                border-top: 1px solid rgba(212,175,55,0.4);
+            }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        @keyframes popIn {
+            from { transform: scale(0.88); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+
+        .modal-shimmer {
+            position: absolute;
+            top: 0; left: -50%;
+            width: 200%; height: 100%;
+            background: linear-gradient(90deg, transparent 30%, rgba(212,175,55,0.035) 50%, transparent 70%);
+            animation: modalShimmer 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes modalShimmer {
+            0%, 100% { transform: translateX(-30%); }
+            50%      { transform: translateX(30%); }
+        }
+
+        .handle {
+            width: 44px; height: 4px;
+            background: linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent);
+            border-radius: 4px;
+            margin: 0 auto 1.5rem;
+        }
+        @media (min-width: 560px) { .handle { display: none; } }
+
+        .btn-close {
+            position: absolute; top: 14px; right: 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 50%;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.45);
+            font-size: 0.85rem; cursor: pointer;
+            transition: all 0.3s;
+            z-index: 5;
+        }
+        .btn-close:hover {
+            color: var(--gold-light);
+            background: rgba(212,175,55,0.12);
+            border-color: rgba(212,175,55,0.35);
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: clamp(1.05rem, 4.6vw, 1.3rem);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin: 0 0 1.3rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent);
+            margin: 1.4rem 0;
+            position: relative;
+        }
+        .divider::after {
+            content: '◆';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0b0905;
+            padding: 0 12px;
+            color: rgba(212,175,55,0.45);
+            font-size: 0.5rem;
+        }
+
+        .modal-icon-circle {
+            width: 62px; height: 62px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,175,55,0.14) 0%, rgba(212,175,55,0.03) 70%);
+            border: 1px solid rgba(212,175,55,0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.9rem;
+            position: relative;
+        }
+        .modal-icon-circle::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1px solid rgba(212,175,55,0.1);
+        }
+        .modal-icon-circle i {
+            color: var(--gold-mid);
+            font-size: 1.35rem;
+            filter: drop-shadow(0 0 8px rgba(212,175,55,0.35));
+        }
+
+        .info-strong {
+            font-family: 'Cormorant Garamond', serif;
+            color: #fff;
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+        }
+        .info-soft {
+            color: rgba(212,175,55,0.72);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+        .info-muted {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.98rem;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        /* ══ CÓDIGO DE VESTIMENTA ══ */
+        .dress-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-top: 0.4rem;
+        }
+        .dress-item {
+            border: 1px solid rgba(212,175,55,0.22);
+            padding: 1.1rem 0.6rem;
+            position: relative;
+        }
+        .dress-item i {
+            color: var(--gold-mid);
+            font-size: 1.3rem;
+            margin-bottom: 0.6rem;
+            display: block;
+        }
+        .dress-item .lbl {
+            font-family: 'Cinzel', serif;
+            font-size: 0.64rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.45);
+            display: block;
+            margin-bottom: 0.4rem;
+        }
+        .dress-item .val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.12rem;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.25;
+            display: block;
+        }
+
+        .tag-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(212,175,55,0.07);
+            border: 1px solid rgba(212,175,55,0.18);
+            color: rgba(212,175,55,0.78);
+            font-size: 0.68rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 1.1rem;
+        }
+
+        /* ══ QR ══ */
+        .qr-frame {
+            display: inline-block;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid rgba(212,175,55,0.5);
+            margin-top: 0.4rem;
+            line-height: 0;
+        }
+        .qr-frame img { width: 150px; height: 150px; display: block; }
+
+        .qr-hint {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin: 0.7rem 0 0;
+        }
+
+        /* ══ FORMULARIO ══ */
+        .elegant-input {
+            width: 100%; display: block;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(212,175,55,0.2);
+            color: #fff;
+            padding: 14px 16px;
+            border-radius: 2px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: 0.9rem;
+            -webkit-appearance: none;
+            transition: all 0.3s;
+        }
+        .elegant-input:focus {
+            outline: none;
+            border-color: var(--gold-mid);
+            background: rgba(212,175,55,0.05);
+            box-shadow: 0 0 20px rgba(212,175,55,0.09);
+        }
+        .elegant-input::placeholder { color: rgba(255,255,255,0.3); }
+        option { background: #0b0905; }
+
+        .btn-modal {
+            display: flex; align-items: center; justify-content: center; gap: 9px;
+            width: 100%; padding: 0.9rem;
+            border-radius: 2px;
+            border: 1px solid rgba(212,175,55,0.45);
+            background: linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(212,175,55,0.04) 100%);
+            color: var(--gold-light);
+            font-family: 'Cinzel', serif;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            margin-top: 0.9rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-modal::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.14), transparent);
+            transition: 0.6s;
+        }
+        .btn-modal:hover::before { left: 100%; }
+        .btn-modal:hover {
+            background: linear-gradient(135deg, rgba(212,175,55,0.22) 0%, rgba(212,175,55,0.08) 100%);
+            border-color: var(--gold-light);
+            box-shadow: 0 0 25px rgba(212,175,55,0.18);
+            transform: translateY(-1px);
+        }
+
+        .hidden { display: none; }
+
+        /* ══ BOTÓN DE MÚSICA ══ */
+        .music-btn {
+            position: fixed;
+            bottom: 25px; right: 20px;
+            width: 48px; height: 48px;
+            background: rgba(12, 9, 5, 0.72);
+            border: 1px solid rgba(212,175,55,0.45);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold-light);
+            font-size: 1.05rem;
+            cursor: pointer;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.45), 0 0 10px rgba(212,175,55,0.12);
+        }
+        .music-btn.visible {
+            display: flex;
+            animation: fadeInMusic 0.5s ease forwards;
+        }
+        @keyframes fadeInMusic {
+            from { opacity: 0; transform: scale(0.8); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .music-btn:hover {
+            background: rgba(212,175,55,0.22);
+            transform: scale(1.08);
+            border-color: var(--gold-light);
+        }
+        .music-btn.playing i { animation: spinMusic 4s linear infinite; }
+        @keyframes spinMusic { 100% { transform: rotate(360deg); } }
+
+        /* ═══════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════ */
+
+        /* Teléfonos muy pequeños (≤359px) */
+        @media (max-width: 359px) {
+            .spacer-top { height: 27vh; min-height: 148px; }
+            .card { width: 90%; max-width: 268px; padding-bottom: 2rem; }
+            .name-box { padding: 0.8rem 0.7rem 0.9rem; }
+            .quote-box { padding: 0.75rem 0.6rem; }
+            .btn-gold { padding: 0.7rem 0.7rem; font-size: 0.63rem; letter-spacing: 1.2px; }
+            .btn-enter { padding: 14px 34px; font-size: 0.7rem; letter-spacing: 3px; margin-bottom: 9vh; }
+            .modal-card { padding: 1.5rem 1.1rem 1.8rem; }
+            .elegant-input { padding: 11px 12px; font-size: 0.85rem; }
+            .qr-frame img { width: 128px; height: 128px; }
+        }
+
+        /* Teléfonos pequeños (360-389px) */
+        @media (min-width: 360px) and (max-width: 389px) {
+            .spacer-top { height: 29vh; min-height: 158px; }
+            .card { width: 88%; max-width: 288px; }
+        }
+
+        /* Teléfonos estándar (390-430px) */
+        @media (min-width: 390px) and (max-width: 430px) {
+            .spacer-top { height: 31vh; min-height: 172px; }
+            .card { width: 85%; max-width: 305px; }
+        }
+
+        /* Phablets (431-559px) */
+        @media (min-width: 431px) and (max-width: 559px) {
+            .spacer-top { height: 31vh; min-height: 185px; }
+            .card { width: 78%; max-width: 345px; }
+            .btn-gold { font-size: 0.75rem; padding: 0.88rem 1.2rem; }
+        }
+
+        /* Tablets vertical (560-768px) */
+        @media (min-width: 560px) and (max-width: 768px) {
+            .spacer-top { height: 29vh; min-height: 205px; }
+            .card { width: 65%; max-width: 380px; }
+            .btn-gold { font-size: 0.76rem; padding: 0.92rem 1.4rem; }
+            .btn-enter { padding: 20px 54px; font-size: 0.85rem; }
+        }
+
+        /* Tablets horizontal / laptops pequeñas (769-1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .spacer-top { height: 27vh; min-height: 215px; }
+            .card { width: 55%; max-width: 410px; }
+            .btn-gold { font-size: 0.78rem; padding: 1rem 1.5rem; }
+        }
+
+        /* Escritorio (≥1025px) */
+        @media (min-width: 1025px) {
+            .bg-layer { background-size: cover; background-position: center 18%; }
+            .spacer-top { height: 25vh; min-height: 210px; }
+            .card { width: 45%; max-width: 440px; }
+            .name-box { padding: 1.3rem 1.6rem 1.5rem; }
+            .quote-box { padding: 1.2rem 1.1rem; }
+            .btn-gold { font-size: 0.8rem; padding: 1rem 1.7rem; letter-spacing: 2.5px; }
+            .btn-enter { padding: 22px 60px; font-size: 0.9rem; letter-spacing: 5px; }
+            .modal-card { max-width: 520px; padding: 2.4rem 2rem 2.6rem; }
+        }
+
+        /* Teléfono en horizontal */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .spacer-top { height: 14vh; min-height: 62px; }
+            .card { width: 56%; max-width: 380px; }
+            .name-box { padding: 0.6rem 0.8rem 0.7rem; margin-bottom: 0.5rem; }
+            .quote-box { padding: 0.5rem 0.6rem; margin: 0.4rem 0 0; }
+            .btn-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.7rem; }
+            .btn-gold { padding: 0.6rem 0.6rem; font-size: 0.6rem; letter-spacing: 1px; }
+            .btn-enter { margin-bottom: 5vh; padding: 12px 34px; font-size: 0.7rem; }
+            .music-btn { bottom: 12px; right: 12px; width: 40px; height: 40px; font-size: 0.9rem; }
+            .modal-card { max-height: 92vh; }
+        }
+
+        /* Pantallas bajas en vertical: deja aire bajo el último botón
+           para que el botón flotante de música no lo tape */
+        @media (max-height: 700px) and (orientation: portrait) {
+            .card { padding-bottom: 4.2rem; }
+        }
+
+        /* Pantallas muy altas */
+        @media (min-height: 860px) and (max-width: 430px) {
+            .spacer-top { height: 34vh; min-height: 260px; }
+        }
+
+        /* Notch / safe areas */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .page {
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            .music-btn {
+                bottom: calc(25px + env(safe-area-inset-bottom));
+                right: calc(20px + env(safe-area-inset-right));
+            }
+            .btn-enter { margin-bottom: calc(14vh + env(safe-area-inset-bottom)); }
+            .btn-skip {
+                bottom: calc(30px + env(safe-area-inset-bottom));
+                right: calc(24px + env(safe-area-inset-right));
+            }
+        }
+
+        /* Áreas táctiles cómodas */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-gold  { min-height: 48px; }
+            .btn-close { min-width: 44px; min-height: 44px; }
+            .music-btn { min-width: 48px; min-height: 48px; }
+        }
+
+        .page, .card, .modal-card { overflow-x: hidden; }
+
+        /* Respeta a quien pide menos movimiento */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .reveal, .btn-gold { opacity: 1 !important; transform: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     AUDIO
+═══════════════════════════════════════ -->
+<audio id="bgMusic" loop preload="none"></audio>
+
+<!-- ═══════════════════════════════════════
+     1. PRECARGA · RELOJ DE ARENA
+═══════════════════════════════════════ -->
+<div id="screen-loader" class="pantalla activa">
+    <svg class="reloj" viewBox="0 0 60 90" aria-hidden="true">
+        <defs>
+            <clipPath id="capArriba"><path d="M11 11 H49 L30 45 Z"/></clipPath>
+            <clipPath id="capAbajo"><path d="M30 45 L49 79 H11 Z"/></clipPath>
+        </defs>
+        <g class="reloj-cuerpo">
+            <g clip-path="url(#capArriba)">
+                <rect class="arena arena-arriba" x="9" y="9" width="42" height="37"/>
+            </g>
+            <g clip-path="url(#capAbajo)">
+                <rect class="arena arena-abajo" x="9" y="45" width="42" height="37"/>
+            </g>
+            <rect class="hilo" x="29.3" y="45" width="1.4" height="33"/>
+            <path class="cristal" d="M11 11 H49 L30 45 L49 79 H11 L30 45 Z"/>
+            <rect class="tapa" x="7" y="6.4"  width="46" height="3.6" rx="1.8"/>
+            <rect class="tapa" x="7" y="79.9" width="46" height="3.6" rx="1.8"/>
+        </g>
+    </svg>
+
+    <p class="loader-texto">Preparando la velada</p>
+    <div class="loader-barra indeterminada" id="loaderBarra"><span id="loaderProgreso"></span></div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     2. PRIMER VIDEO
+═══════════════════════════════════════ -->
+<div id="screen-v1" class="pantalla">
+    <video id="video1" class="video-full" src="intro-1.mp4?v=1"
+           playsinline webkit-playsinline preload="auto"></video>
+    <button class="btn-skip" onclick="saltarVideo(1)">
+        Saltar <i class="fas fa-forward"></i>
+    </button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     3. EL SOBRE · espera el clic
+═══════════════════════════════════════ -->
+<div id="screen-sobre" class="pantalla">
+    <img src="sobre.webp?v=1" alt="Un sobre dorado" class="sobre-img">
+
+    <div class="sparkle-container">
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+        <div class="sparkle"></div>
+    </div>
+
+    <button id="btnSobre" class="btn-enter" onclick="abrirSobre()">
+        <i class="fas fa-envelope" id="btnSobreIcono"></i>
+        <span id="btnSobreTexto">Abrir Sobre</span>
+    </button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     4. SEGUNDO VIDEO
+═══════════════════════════════════════ -->
+<div id="screen-v2" class="pantalla">
+    <video id="video2" class="video-full" src="intro-2.mp4?v=1"
+           playsinline webkit-playsinline preload="none"></video>
+    <button class="btn-skip" onclick="saltarVideo(2)">
+        Saltar <i class="fas fa-forward"></i>
+    </button>
+</div>
+
+<!-- Fundido a negro que da paso a la tarjeta -->
+<div id="fundido-negro"></div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3: TARJETA
+═══════════════════════════════════════ -->
+<div id="screen-card">
+
+    <button id="musicToggleBtn" class="music-btn" onclick="toggleMusic(event)" title="Reproducir/Pausar música">
+        <i class="fas fa-music"></i>
+    </button>
+
+    <canvas id="fxCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;"></canvas>
+
+    <div class="bg-layer"></div>
+
+    <div class="page">
+
+        <div class="spacer-top"></div>
+
+        <div class="card">
+
+            <!-- Invitación + nombre -->
+            <div class="name-box reveal reveal-d1">
+                <p class="invite-line">Acompáñame a celebrar<br>mi cumpleaños</p>
+
+                <div class="date-strip">
+                    <span class="rule"></span>
+                    <span class="txt text-gold">5 de Diciembre</span>
+                    <span class="rule"></span>
+                </div>
+            </div>
+
+            <div class="deco-mark reveal reveal-d2">✦ &nbsp;·&nbsp; ✦ &nbsp;·&nbsp; ✦</div>
+
+            <!-- Cita -->
+            <div class="quote-box reveal reveal-d2">
+                <p class="font-serif" style="font-style:italic; color:rgba(255,255,255,0.88); font-size:clamp(0.98rem,4vw,1.12rem); line-height:1.45; margin:0;">
+                    "Para ver un amanecer inolvidable."
+                </p>
+            </div>
+
+            <!-- Botones -->
+            <div class="btn-wrap">
+                <button onclick="openModal('modal-fecha')" class="btn-gold">
+                    <i class="far fa-calendar"></i> Fecha y Lugar
+                </button>
+                <button onclick="openModal('modal-vestimenta')" class="btn-gold">
+                    <i class="fas fa-user-tie"></i> Vestimenta
+                </button>
+                <button onclick="openModal('modal-sobres')" class="btn-gold">
+                    <i class="far fa-envelope"></i> Lluvia de Sobres
+                </button>
+                <button onclick="openModal('modal-asistencia')" class="btn-gold">
+                    <i class="fas fa-check"></i> Confirmar Asistencia
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MODAL: FECHA Y LUGAR ═══ -->
+<div id="modal-fecha" class="modal-overlay" onclick="handleOverlay(event,'modal-fecha')">
+    <div class="modal-card">
+        <div class="modal-shimmer"></div>
+        <div class="handle"></div>
+        <button class="btn-close" onclick="closeModal('modal-fecha')" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+
+        <h3 class="modal-title text-gold">Cuándo y Dónde</h3>
+
+        <div class="modal-icon-circle"><i class="far fa-calendar"></i></div>
+        <p class="info-strong">Sábado, 5 de Diciembre</p>
+        <p class="info-soft">2026 &nbsp;·&nbsp; 6:00 PM</p>
+
+        <div class="divider"></div>
+
+        <div class="modal-icon-circle"><i class="fas fa-map-marker-alt"></i></div>
+        <p class="info-strong">Bárbaro Cocina Primitiva</p>
+        <p class="info-muted">Rionegro, Antioquia</p>
+
+        <div class="qr-frame">
+            <img src="qr-ubicacion.png?v=1" alt="Código QR con la ubicación">
+        </div>
+        <p class="qr-hint">Escanea o toca el botón</p>
+
+        <a href="https://linktr.ee/UbicacionRionegro" target="_blank" rel="noopener" class="btn-modal" style="text-decoration:none;">
+            <i class="fas fa-map"></i> Abrir Ubicación
+        </a>
+    </div>
+</div>
+
+<!-- ═══ MODAL: VESTIMENTA ═══ -->
+<div id="modal-vestimenta" class="modal-overlay" onclick="handleOverlay(event,'modal-vestimenta')">
+    <div class="modal-card">
+        <div class="modal-shimmer"></div>
+        <div class="handle"></div>
+        <button class="btn-close" onclick="closeModal('modal-vestimenta')" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+
+        <h3 class="modal-title text-gold">Código de Vestimenta</h3>
+
+        <div class="dress-grid">
+            <div class="dress-item">
+                <i class="fas fa-user-tie"></i>
+                <span class="lbl">Caballeros</span>
+                <span class="val">Traje<br>Corbata Negra</span>
+            </div>
+            <div class="dress-item">
+                <i class="fas fa-venus"></i>
+                <span class="lbl">Damas</span>
+                <span class="val">Vestido<br>Largo</span>
+            </div>
+        </div>
+
+        <div class="tag-note"><i class="fas fa-star"></i> Estilo Gran Gatsby</div>
+    </div>
+</div>
+
+<!-- ═══ MODAL: LLUVIA DE SOBRES ═══ -->
+<div id="modal-sobres" class="modal-overlay" onclick="handleOverlay(event,'modal-sobres')">
+    <div class="modal-card">
+        <div class="modal-shimmer"></div>
+        <div class="handle"></div>
+        <button class="btn-close" onclick="closeModal('modal-sobres')" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+
+        <h3 class="modal-title text-gold">Lluvia de Sobres</h3>
+
+        <div class="modal-icon-circle"><i class="far fa-envelope"></i></div>
+
+        <p class="font-serif" style="font-style:italic; color:rgba(255,255,255,0.85); font-size:1.1rem; line-height:1.55; margin:0 0 1rem;">
+            Si quieres consentirme con un detalle, esa noche habrá lluvia de sobres.
+        </p>
+
+        <div class="divider"></div>
+
+        <p class="info-muted" style="font-size:0.9rem; line-height:1.6;">
+            Tu presencia ya es el mejor regalo.
+        </p>
+    </div>
+</div>
+
+<!-- ═══ MODAL: CONFIRMAR ASISTENCIA ═══ -->
+<div id="modal-asistencia" class="modal-overlay" onclick="handleOverlay(event,'modal-asistencia')">
+    <div class="modal-card">
+        <div class="modal-shimmer"></div>
+        <div class="handle"></div>
+        <button class="btn-close" onclick="closeModal('modal-asistencia')" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+
+        <h3 class="modal-title text-gold">Confirmación</h3>
+
+        <form id="form-asistencia" onsubmit="handleAsistencia(event)" style="text-align:left;">
+            <input type="text" id="input-nombre" placeholder="Tu Nombre Completo" required class="elegant-input" autocomplete="name">
+            <select id="input-asistencia" required class="elegant-input">
+                <option value="" disabled selected>¿Asistirás?</option>
+                <option value="si">¡Sí, allí estaré!</option>
+                <option value="no">Lo siento, no podré asistir</option>
+            </select>
+
+            <button type="submit" class="btn-modal" id="btn-enviar">
+                Enviar Confirmación &nbsp;<i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+
+        <div id="mensaje-exito" class="hidden" style="margin-top:1.5rem; text-align:center;">
+            <div style="width:56px;height:56px;border-radius:50%;background:radial-gradient(circle, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.05) 70%);border:1px solid rgba(212,175,55,0.3);display:inline-flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+                <i class="fas fa-check" style="font-size:1.2rem; color:var(--gold-light);"></i>
+            </div>
+            <p class="font-serif" style="color:#fff; font-size:1.25rem; margin:0;">¡Gracias por responder!</p>
+            <p style="color:rgba(255,255,255,0.4); font-size:0.9rem; margin-top:0.3rem;">Tu respuesta fue registrada.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════ -->
+<script>
+    /* ════════════════════════════════════════
+       CONFIGURACIÓN — lo único que hay que tocar
+    ════════════════════════════════════════ */
+    const CONFIG = {
+        // Número de WhatsApp que recibe las confirmaciones (internacional, sin + ni espacios)
+        whatsapp: '573008724559',
+
+        // URL del Google Apps Script que guarda en la hoja de cálculo.
+        // Déjalo en '' si todavía no hay hoja: la confirmación igual llega por WhatsApp.
+        sheetsUrl: '',
+
+        // Música de fondo, ya recortada: arranca justo donde entra la banda.
+        // El ?v=N rompe la caché: si cambias la canción, sube el número.
+        // Pon null para quitar la música.
+        music: 'song.m4a?v=3',
+
+        // Texto que viaja en el mensaje de WhatsApp
+        evento: 'Cumpleaños de Jorge Eduardo · 5 de Diciembre'
+    };
+
+    /* ════════════════════════════════════════
+       RECORRIDO
+       reloj de arena → video 1 → sobre → video 2 → (negro) → tarjeta
+    ════════════════════════════════════════ */
+    const bgMusic        = document.getElementById('bgMusic');
+    const pLoader        = document.getElementById('screen-loader');
+    const pV1            = document.getElementById('screen-v1');
+    const pSobre         = document.getElementById('screen-sobre');
+    const pV2            = document.getElementById('screen-v2');
+    const screenCard     = document.getElementById('screen-card');
+    const video1         = document.getElementById('video1');
+    const video2         = document.getElementById('video2');
+    const musicBtn       = document.getElementById('musicToggleBtn');
+    const btnSobre       = document.getElementById('btnSobre');
+    const btnSobreTexto  = document.getElementById('btnSobreTexto');
+    const btnSobreIcono  = document.getElementById('btnSobreIcono');
+    const loaderBarra    = document.getElementById('loaderBarra');
+    const loaderProgreso = document.getElementById('loaderProgreso');
+    const fundidoNegro   = document.getElementById('fundido-negro');
+
+    let isMusicPlaying = false;
+    let musicAvailable = !!CONFIG.music;
+    let video2Listo    = false;
+    let esperandoV2    = false;
+    let yaEnTarjeta    = false;
+
+    if (musicAvailable) bgMusic.src = CONFIG.music;
+
+    /* ── Cambio de pantalla con fundido ── */
+    function mostrar(pantalla) {
+        pantalla.classList.add('activa');
+    }
+    function ocultar(pantalla, despues) {
+        if (!pantalla.classList.contains('activa')) { despues && despues(); return; }
+        pantalla.classList.add('saliendo');
+        setTimeout(() => {
+            pantalla.classList.remove('activa', 'saliendo');
+            despues && despues();
+        }, 700);
+    }
+
+    /* ── Reproduce con sonido; si el navegador lo bloquea, en silencio ── */
+    function reproducir(video, siNoSePuede) {
+        try { video.currentTime = 0; } catch (e) {}
+        video.muted = false;
+        const intento = video.play();
+        if (intento && intento.catch) {
+            intento.catch(() => {
+                video.muted = true;
+                const segundo = video.play();
+                if (segundo && segundo.catch) segundo.catch(() => siNoSePuede && siNoSePuede());
+            });
+        }
+    }
+
+    /* ══════════════════════════════════════
+       1. RELOJ DE ARENA · precarga del primer video
+    ══════════════════════════════════════ */
+    const abierto = Date.now();
+    let yaArranco = false;
+
+    function pintarProgreso() {
+        if (!video1.duration || !isFinite(video1.duration) || !video1.buffered.length) return;
+        let cargado = 0;
+        for (let i = 0; i < video1.buffered.length; i++) {
+            cargado = Math.max(cargado, video1.buffered.end(i));
+        }
+        const pct = Math.min(100, Math.round((cargado / video1.duration) * 100));
+        loaderBarra.classList.remove('indeterminada');
+        loaderProgreso.style.width = pct + '%';
+    }
+    const tictac = setInterval(pintarProgreso, 250);
+
+    function arrancar() {
+        if (yaArranco) return;
+        yaArranco = true;
+        clearInterval(tictac);
+        loaderBarra.classList.remove('indeterminada');
+        loaderProgreso.style.width = '100%';
+
+        // Que el reloj se vea al menos un momento, aunque el video venga de caché
+        const espera = Math.max(450, 1100 - (Date.now() - abierto));
+        setTimeout(() => {
+            mostrar(pV1);
+            reproducir(video1, alSobre);
+            ocultar(pLoader);
+            precargarElResto();
+        }, espera);
+    }
+
+    video1.addEventListener('canplaythrough', arrancar, { once: true });
+    // Red lenta: a los 12 s arrancamos igual y el video sigue cargando mientras corre
+    setTimeout(arrancar, 12000);
+    // Si el primer video no existe o falla, vamos directo al sobre
+    video1.addEventListener('error', () => {
+        yaArranco = true;
+        clearInterval(tictac);
+        ocultar(pLoader);
+        mostrar(pSobre);
+        precargarElResto();
+    }, { once: true });
+
+    /* ── Mientras se ve el primer video, cargamos lo que viene ── */
+    let yaPrecargado = false;
+    function precargarElResto() {
+        if (yaPrecargado) return;
+        yaPrecargado = true;
+
+        new Image().src = 'sobre.webp?v=1';
+        new Image().src = 'fondo-gatsby.webp?v=1';
+
+        video2.preload = 'auto';
+        video2.load();
+        video2.addEventListener('canplaythrough', () => {
+            video2Listo = true;
+            if (esperandoV2) lanzarVideo2();
+        }, { once: true });
+
+        if (musicAvailable) { bgMusic.preload = 'auto'; bgMusic.load(); }
+    }
+
+    /* ══════════════════════════════════════
+       2. EL SOBRE · espera el clic
+    ══════════════════════════════════════ */
+    video1.addEventListener('ended', alSobre);
+
+    function alSobre() {
+        if (pSobre.classList.contains('activa')) return;
+        mostrar(pSobre);                       // aparece debajo
+        ocultar(pV1, () => video1.pause());    // y el video se desvanece encima
+        precargarElResto();
+    }
+
+    /* ── El clic del invitado: aquí se desbloquea el audio del navegador ── */
+    function abrirSobre() {
+        if (esperandoV2) return;
+
+        if (video2Listo) { lanzarVideo2(); return; }
+
+        // Todavía cargando: el botón espera por él
+        esperandoV2 = true;
+        btnSobre.style.pointerEvents = 'none';
+        btnSobreTexto.textContent = 'Abriendo';
+        btnSobreIcono.className = 'fas fa-spinner fa-spin';
+        video2.preload = 'auto';
+        video2.load();
+
+        // Si la red va muy lenta, lanzamos igual a los 10 s
+        setTimeout(() => { if (esperandoV2) lanzarVideo2(); }, 10000);
+    }
+
+    function lanzarVideo2() {
+        if (!esperandoV2 && pV2.classList.contains('activa')) return;
+        esperandoV2 = false;
+        mostrar(pV2);
+        reproducir(video2, aLaTarjeta);
+        ocultar(pSobre);
+    }
+
+    /* ── Saltar cualquiera de los dos videos ── */
+    function saltarVideo(cual) {
+        if (cual === 1) { video1.pause(); alSobre(); }
+        else            { video2.pause(); aLaTarjeta(); }
+    }
+
+    /* ══════════════════════════════════════
+       3. FUNDIDO A NEGRO · y aparece la tarjeta
+    ══════════════════════════════════════ */
+    video2.addEventListener('ended', aLaTarjeta);
+
+    function aLaTarjeta() {
+        if (yaEnTarjeta) return;
+        yaEnTarjeta = true;
+
+        fundidoNegro.classList.add('on');          // todo a negro en 0.9 s
+
+        setTimeout(() => {
+            video1.pause();
+            video2.pause();
+            [pLoader, pV1, pSobre, pV2].forEach(p => p.classList.remove('activa', 'saliendo'));
+
+            screenCard.classList.add('active');
+            arrancarMusica();
+            initFireworks();
+
+            // Y el negro se abre para revelar la tarjeta.
+            // Con setTimeout y no con requestAnimationFrame: si el invitado se
+            // cambia de app justo aquí, rAF se congela y se quedaría en negro.
+            setTimeout(() => fundidoNegro.classList.remove('on'), 60);
+        }, 950);
+    }
+
+    /* Red de seguridad: si vuelve a la pestaña y la tarjeta ya está, fuera el negro */
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && yaEnTarjeta) fundidoNegro.classList.remove('on');
+    });
+
+    /* ── Música con fundido de entrada ── */
+    function arrancarMusica() {
+        if (!musicAvailable) return;
+        musicBtn.classList.add('visible');
+        // Arranca casi arriba y sube en 0.2 s: el archivo empieza justo en el
+        // golpe de la banda y un fundido largo se lo comería.
+        bgMusic.volume = 0.16;
+        bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            musicBtn.classList.add('playing');
+            let vol = 0.16;
+            const subir = setInterval(() => {
+                vol += 0.04;
+                if (vol >= 0.35) { vol = 0.35; clearInterval(subir); }
+                bgMusic.volume = vol;
+            }, 45);
+        }).catch(() => {
+            // Autoplay bloqueado: el botón queda listo para que lo toquen
+            musicBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        });
+    }
+
+    /* ── Toggle música ── */
+    function toggleMusic(e) {
+        if (e) e.stopPropagation();
+        if (isMusicPlaying) {
+            bgMusic.pause();
+            isMusicPlaying = false;
+            musicBtn.classList.remove('playing');
+            musicBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        } else {
+            bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                musicBtn.classList.add('playing');
+                musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+            }).catch(() => {});
+        }
+    }
+
+    /* ── Modales ── */
+    function openModal(id) {
+        const m = document.getElementById(id);
+        m.style.display = 'flex';
+        requestAnimationFrame(() => m.classList.add('active'));
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        m.classList.remove('active');
+        setTimeout(() => { m.style.display = 'none'; }, 420);
+        document.body.style.overflow = '';
+        if (id === 'modal-asistencia') {
+            setTimeout(() => {
+                const form = document.getElementById('form-asistencia');
+                form.style.display = 'block';
+                form.style.opacity = '1';
+                form.reset();
+                document.getElementById('mensaje-exito').classList.add('hidden');
+                const btn = document.getElementById('btn-enviar');
+                btn.style.pointerEvents = '';
+                btn.innerHTML = 'Enviar Confirmación &nbsp;<i class="fas fa-paper-plane"></i>';
+            }, 430);
+        }
+    }
+
+    function handleOverlay(e, id) {
+        if (e.target === e.currentTarget) closeModal(id);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        document.querySelectorAll('.modal-overlay.active').forEach(m => closeModal(m.id));
+    });
+
+    /* ── Confirmación de asistencia ── */
+    function handleAsistencia(e) {
+        e.preventDefault();
+        const form       = document.getElementById('form-asistencia');
+        const nombre     = document.getElementById('input-nombre').value.trim();
+        const asistencia = document.getElementById('input-asistencia').value;
+        const texto      = asistencia === 'si' ? 'Sí, asistirá' : 'No podrá asistir';
+        const fechaHora  = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
+
+        const btnEnviar = document.getElementById('btn-enviar');
+        btnEnviar.style.pointerEvents = 'none';
+        btnEnviar.innerHTML = 'Enviando... &nbsp;<i class="fas fa-spinner fa-spin"></i>';
+
+        // 1. Google Sheets (opcional)
+        if (CONFIG.sheetsUrl) {
+            try {
+                const params = new URLSearchParams({ nombre, asistencia: texto, fecha: fechaHora }).toString();
+                const img = new Image();
+                img.src = CONFIG.sheetsUrl + '?' + params;
+            } catch (err) { console.log('Sheets error:', err); }
+        }
+
+        // 2. WhatsApp
+        const msg = encodeURIComponent(
+            `🥂 *Confirmación de Asistencia*\n*${CONFIG.evento}*\n\n` +
+            `👤 *Nombre:* ${nombre}\n` +
+            `✅ *Asistencia:* ${texto}\n` +
+            `📅 *Confirmado el:* ${new Date().toLocaleDateString('es-CO')}`
+        );
+        const whatsappURL = `https://wa.me/${CONFIG.whatsapp}?text=${msg}`;
+
+        form.style.transition = 'opacity 0.3s';
+        form.style.opacity = '0';
+        setTimeout(() => {
+            form.style.display = 'none';
+            document.getElementById('mensaje-exito').classList.remove('hidden');
+            setTimeout(() => window.open(whatsappURL, '_blank'), 800);
+        }, 300);
+        setTimeout(() => closeModal('modal-asistencia'), 4500);
+    }
+
+    /* ══════════════════════════════════════
+       PIROTECNIA DORADA
+       Cohetes que suben discretos y revientan en oro
+    ══════════════════════════════════════ */
+    function initFireworks() {
+        const canvas = document.getElementById('fxCanvas');
+        if (!canvas) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const ctx = canvas.getContext('2d');
+        const GOLDS = ['#fff3c4', '#f7e39c', '#ffd700', '#d4af37', '#e8b84b'];
+
+        let W, H, dpr;
+        const cohetes = [];
+        const chispas = [];
+
+        // Menos pólvora en pantallas pequeñas, para que el móvil no sufra
+        const esMovil    = window.innerWidth < 500;
+        const POR_BURST  = esMovil ? 46 : 70;
+        const MAX_CHISP  = esMovil ? 260 : 460;
+        const MAX_COHETE = 2;
+
+        function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width  = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width  = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function oro() { return GOLDS[Math.floor(Math.random() * GOLDS.length)]; }
+
+        /* ── Cohete: sube decelerando hasta su altura y revienta ── */
+        function lanzar(x) {
+            if (cohetes.length >= MAX_COHETE) return;
+
+            const destinoX = x !== undefined ? x : W * (0.2 + Math.random() * 0.6);
+            const destinoY = H * (0.14 + Math.random() * 0.24);
+            const salidaX  = destinoX + (Math.random() - 0.5) * W * 0.1;
+            const frames   = 62 + Math.random() * 22;
+            const alto     = (H + 10) - destinoY;
+            const v0       = (2 * alto) / frames;
+
+            cohetes.push({
+                x: salidaX, y: H + 10,
+                px: salidaX, py: H + 10,
+                destinoY,
+                vx: (destinoX - salidaX) / frames,
+                vy: -v0,
+                g:  v0 / frames,
+                color: oro()
+            });
+        }
+
+        /* ── Estallido: corona de chispas doradas ── */
+        function estallar(x, y, color) {
+            // Resplandor del momento del estallido
+            chispas.push({ tipo: 'flash', x, y, r: 3, alpha: 0.9, decay: 0.12 });
+
+            for (let i = 0; i < POR_BURST; i++) {
+                const ang = (Math.PI * 2 * i) / POR_BURST + (Math.random() - 0.5) * 0.25;
+                // Dos coronas, una dentro de la otra, para dar volumen
+                const base = Math.random() < 0.6 ? 2.6 : 4.8;
+                const vel  = base * (0.6 + Math.random() * 0.7);
+                chispas.push({
+                    tipo: 'chispa',
+                    x, y, px: x, py: y,
+                    vx: Math.cos(ang) * vel,
+                    vy: Math.sin(ang) * vel,
+                    r: 1.7 + Math.random() * 1.6,
+                    alpha: 1,
+                    decay: 0.0062 + Math.random() * 0.0075,
+                    parpadeo: Math.random() < 0.4,
+                    color: Math.random() < 0.3 ? '#fff3c4' : color
+                });
+            }
+
+            // Brasas que se descuelgan lento al final
+            const brasas = esMovil ? 7 : 12;
+            for (let i = 0; i < brasas; i++) {
+                const ang = Math.random() * Math.PI * 2;
+                chispas.push({
+                    tipo: 'brasa',
+                    x, y, px: x, py: y,
+                    vx: Math.cos(ang) * (0.5 + Math.random()),
+                    vy: Math.sin(ang) * (0.5 + Math.random()),
+                    r: 1.2 + Math.random() * 1.3,
+                    alpha: 0.95,
+                    decay: 0.003 + Math.random() * 0.0035,
+                    parpadeo: true,
+                    color: oro()
+                });
+            }
+
+            if (chispas.length > MAX_CHISP) chispas.splice(0, chispas.length - MAX_CHISP);
+        }
+
+        /* ── Primeras salvas al abrir la tarjeta, luego una cada tanto ── */
+        setTimeout(() => lanzar(W * 0.33), 350);
+        setTimeout(() => lanzar(W * 0.68), 1500);
+
+        const intervalo = setInterval(() => {
+            if (!document.hidden) lanzar();
+        }, esMovil ? 2400 : 1900);
+        window.addEventListener('pagehide', () => clearInterval(intervalo));
+
+        /* ── Un toque en la tarjeta lanza su propio cohete ── */
+        document.getElementById('screen-card').addEventListener('pointerdown', (e) => {
+            if (e.target.closest('button, a, input, select, .modal-overlay')) return;
+            lanzar(e.clientX);
+        });
+
+        /* ── Traza un segmento con halo.
+             Dos trazos (uno ancho y tenue, otro fino y vivo) en modo aditivo
+             dan el mismo brillo que shadowBlur y cuestan mucho menos en móvil. ── */
+        function trazo(x0, y0, x1, y1, color, ancho, alpha) {
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = color;
+            ctx.lineCap = 'round';
+
+            ctx.globalAlpha = alpha * 0.24;
+            ctx.lineWidth = ancho * 3.6;
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y1);
+            ctx.stroke();
+
+            ctx.globalAlpha = alpha;
+            ctx.lineWidth = ancho;
+            ctx.beginPath();
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x1, y1);
+            ctx.stroke();
+        }
+
+        function animate() {
+            // Borrado parcial: deja estela sin oscurecer el fondo
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(0,0,0,0.30)';
+            ctx.fillRect(0, 0, W, H);
+
+            // Todo el oro se suma: así brilla de verdad
+            ctx.globalCompositeOperation = 'lighter';
+
+            /* ── Cohetes: discretos, el protagonista es el estallido ── */
+            for (let i = cohetes.length - 1; i >= 0; i--) {
+                const c = cohetes[i];
+                c.px = c.x; c.py = c.y;
+                c.x += c.vx;
+                c.y += c.vy;
+                c.vy += c.g;
+
+                trazo(c.px, c.py, c.x, c.y, c.color, 1.4, 0.32);
+
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#fff6d0';
+                ctx.shadowColor = c.color;
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (c.vy >= -0.4 || c.y <= c.destinoY) {
+                    estallar(c.x, c.y, c.color);
+                    cohetes.splice(i, 1);
+                }
+            }
+
+            /* ── Chispas ── */
+            for (let i = chispas.length - 1; i >= 0; i--) {
+                const p = chispas[i];
+
+                if (p.tipo === 'flash') {
+                    p.r += 4.5;
+                    p.alpha -= p.decay;
+                    if (p.alpha <= 0) { chispas.splice(i, 1); continue; }
+                    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+                    g.addColorStop(0,    'rgba(255,243,200,' + (p.alpha * 0.38).toFixed(3) + ')');
+                    g.addColorStop(0.4,  'rgba(212,175,55,'  + (p.alpha * 0.15).toFixed(3) + ')');
+                    g.addColorStop(1,    'rgba(212,175,55,0)');
+                    ctx.globalAlpha = 1;
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = g;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                    continue;
+                }
+
+                p.px = p.x; p.py = p.y;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.978;                       // el aire las frena
+                p.vy *= 0.978;
+                p.vy += p.tipo === 'brasa' ? 0.013 : 0.030;
+                p.alpha -= p.decay;
+
+                if (p.alpha <= 0) { chispas.splice(i, 1); continue; }
+
+                let a = p.alpha;
+                if (p.parpadeo) a *= 0.4 + Math.random() * 0.6;
+
+                trazo(p.px, p.py, p.x, p.y, p.color, Math.max(0.7, p.r * p.alpha), Math.max(0, a));
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            ctx.globalCompositeOperation = 'source-over';
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+</script>
+
+</body>
+</html>

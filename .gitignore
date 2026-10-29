@@ -1,0 +1,10 @@
+node_modules/
+.env
+.DS_Store
+*.log
+
+# Archivos originales sin optimizar (los de public/ son los que se publican)
+originales/
+
+# Config local de Claude Code
+.claude/
