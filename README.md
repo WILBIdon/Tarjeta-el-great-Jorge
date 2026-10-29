@@ -196,10 +196,17 @@ host que da Railway.
 - Sin build ni dependencias de frontend: un solo HTML autocontenido.
 - Fuentes: Cinzel (art déco), Cormorant Garamond, Montserrat.
 - Responsive de 320 px a escritorio, con ajustes para notch y horizontal.
-- Respeta `prefers-reduced-motion`, pero **sin dejar la invitación muda**:
-  se apagan los bucles decorativos (pulsos, destellos, brillos, el reloj) y la
-  pirotecnia **se serena en vez de apagarse** — estallidos lentos y cortos, sin
-  cohetes cruzando la pantalla.
+- Respeta `prefers-reduced-motion` con un criterio concreto: **se va lo que se
+  desplaza o gira, se queda lo que solo brilla.** Fuera los barridos, los giros
+  y la flotación de los botones; dentro el halo que respira, el degradado que
+  recorre el texto dorado, el aura del nombre, los filetes de la cita y los
+  fundidos entre pantallas. La pirotecnia **se serena, no se apaga**: el cohete
+  sigue subiendo, solo que más despacio.
+  Esto importa de verdad: en iPhone el **modo de bajo consumo activa esa
+  preferencia solo**, y en Android la activa "Quitar animaciones". Ahí cae
+  mucha gente que nunca la pidió, y antes se quedaba sin la mitad del diseño.
+- Respaldo para navegadores sin `backdrop-filter`: los paneles se opacan en vez
+  de quedar transparentes e ilegibles sobre el fondo art déco.
   Los **fundidos de opacidad se conservan a propósito**: un fundido es el
   reemplazo recomendado del movimiento, no movimiento del que protegerse.
   Importante: en iPhone, el **modo de bajo consumo activa esa preferencia solo**,

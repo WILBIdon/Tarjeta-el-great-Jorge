@@ -1148,6 +1148,22 @@
             .music-btn { min-width: 48px; min-height: 48px; }
         }
 
+        /* ═══ SIN BACKDROP-FILTER ═══
+           El aspecto de cristal esmerilado de los paneles y de los botones
+           dorados sale de backdrop-filter. Donde no exista, el fondo
+           translúcido deja pasar el art déco y el texto se vuelve ilegible.
+           Aquí los paneles se opacan para que sigan leyéndose como paneles. */
+        @supports not ((backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px))) {
+            .name-box      { background: rgba(8, 6, 3, 0.80); }
+            .quote-box     { background: rgba(8, 6, 3, 0.76); }
+            .btn-gold      { background: rgba(8, 6, 3, 0.84); }
+            .btn-enter     { background: linear-gradient(135deg, rgba(60,46,12,0.92) 0%, rgba(32,25,8,0.92) 100%); }
+            .music-btn     { background: rgba(12, 9, 5, 0.92); }
+            .btn-skip,
+            .btn-sonido    { background: rgba(0, 0, 0, 0.82); }
+            .modal-overlay { background: rgba(0, 0, 0, 0.94); }
+        }
+
         .page, .card, .modal-card { overflow-x: hidden; }
 
         /* ═══════════════════════════════════
@@ -1160,14 +1176,27 @@
         ═══════════════════════════════════ */
         @media (prefers-reduced-motion: reduce) {
 
-            /* Bucles decorativos: fuera */
-            .btn-enter, .btn-enter::before, .btn-enter i,
-            .sparkle, .text-gold,
-            .name-box::before, .quote-box::before, .quote-box::after,
-            .modal-shimmer, .music-btn.playing i,
-            .reloj-cuerpo, .arena, .hilo, .btn-sonido {
+            /* El criterio: se va lo que SE DESPLAZA O GIRA, se queda lo que
+               SOLO BRILLA. Un resplandor que respira o un degradado que recorre
+               un texto no son movimiento del que haya que proteger a nadie, y
+               son justo lo que le da vida a la tarjeta. */
+            .btn-enter::before,          /* destello que cruza el botón */
+            .modal-shimmer,              /* barrido sobre el modal */
+            .music-btn.playing i,        /* la nota girando */
+            .reloj-cuerpo,               /* el reloj dando la vuelta */
+            .btn-sonido {
                 animation: none !important;
             }
+
+            /* El botón deja de flotar, pero su halo sigue latiendo */
+            .btn-enter {
+                animation: btnPulse 2.8s ease-in-out infinite !important;
+            }
+
+            /* Se quedan a propósito: el degradado del texto dorado (shine), el
+               aura del nombre, los filetes de la cita, el parpadeo del icono,
+               los destellos junto al botón y la arena del reloj, que indica
+               progreso real. Nada de eso desplaza nada. */
 
             /* Entradas: directo a su estado final, sin recorrido */
             .reveal, .btn-gold, .btn-skip {
@@ -1189,9 +1218,6 @@
                 width: 100% !important;
                 opacity: 0.3;
             }
-
-            /* Los destellos quedan como puntos quietos, no invisibles */
-            .sparkle { opacity: 0.45; }
 
             /* Lo que SÍ se conserva, a propósito:
                .pantalla  transition: opacity 0.7s   (fundido entre videos)
@@ -1858,6 +1884,8 @@
                 'display    ' + (capa ? getComputedStyle(capa).display : '-') + '\n' +
                 'elementos  ' + vivas + '  (chispas y cohetes vivos)\n' +
                 'anima CSS  ' + (sabeAnimar ? 'sí' : 'NO') + '\n' +
+                'cristal    ' + (CSS.supports('backdrop-filter', 'blur(4px)') ||
+                                 CSS.supports('-webkit-backdrop-filter', 'blur(4px)') ? 'sí' : 'NO') + '\n' +
                 'menos mov. ' + (reduce ? 'SÍ  → versión serena' : 'no') + '\n' +
                 'fps        ' + diagFps + '\n' +
                 'arrancada  ' + (window.__fxVivo ? 'sí' : 'NO') + '\n' +
@@ -1899,9 +1927,9 @@
         const esMovil = window.innerWidth < 500;
         const calma   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        const POR_BURST = calma ? 16 : (esMovil ? 30 : 44);
-        const ALCANCE   = calma ? 60 : (esMovil ? 105 : 150);
-        const CADENCIA  = calma ? 5200 : (esMovil ? 2300 : 1850);
+        const POR_BURST = calma ? 22 : (esMovil ? 30 : 44);
+        const ALCANCE   = calma ? 82 : (esMovil ? 105 : 150);
+        const CADENCIA  = calma ? 3600 : (esMovil ? 2300 : 1850);
 
         const W = () => window.innerWidth;
         const H = () => window.innerHeight;
@@ -1928,7 +1956,7 @@
                 ch.className = 'fx-chispa';
                 ch.style.setProperty('--dx', (Math.cos(ang) * dist).toFixed(1) + 'px');
                 ch.style.setProperty('--dy', (Math.sin(ang) * dist).toFixed(1) + 'px');
-                ch.style.setProperty('--caida', (calma ? 12 : 34 + Math.random() * 54).toFixed(0) + 'px');
+                ch.style.setProperty('--caida', (calma ? 22 : 34 + Math.random() * 54).toFixed(0) + 'px');
                 ch.style.setProperty('--oro', oro());
                 ch.style.setProperty('--w', (3.5 + Math.random() * 3.5).toFixed(1) + 'px');
                 ch.style.setProperty('--dur', dur.toFixed(2) + 's');
@@ -1945,10 +1973,7 @@
 
             const destinoX = (x !== undefined) ? x : W() * (0.2 + Math.random() * 0.6);
             const alto     = H() * (0.70 + Math.random() * 0.14);   // revienta arriba, sin tapar el texto
-            const dur      = 1.65 + Math.random() * 0.4;    // lento, para poder seguirlo con la vista
-
-            // Con menos movimiento no hay cohete: el estallido aparece y ya
-            if (calma) { estallar(destinoX, H() - alto); return; }
+            const dur      = (calma ? 2.4 : 1.65) + Math.random() * 0.4;  // lento, para seguirlo con la vista
 
             const cohete = document.createElement('div');
             cohete.className = 'fx-cohete';
