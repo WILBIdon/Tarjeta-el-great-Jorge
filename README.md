@@ -219,6 +219,9 @@ host que da Railway.
   `getContext`, ni de modos de composición, ni de límites de tamaño de lienzo,
   ni de `devicePixelRatio`. Si esto no se ve, es que el navegador no sabe
   animar nada. Tocar la tarjeta lanza un cohete extra.
+- Los cuatro botones de la tarjeta respiran como el de "abrir sobre": un halo
+  que late y un destello que los cruza, **escalonados** para que sea una ola y
+  no un parpadeo al unísono.
 - El primer video arranca **mudo en móvil**: ningún navegador deja sonar audio
   sin un toque previo del usuario. Cuando pasa, aparece *"Toca para el sonido"*
   y basta tocar en cualquier punto del video. Ese toque además desbloquea el

@@ -412,9 +412,10 @@
             width: 12px; height: 12px;
             border-radius: 50%;
             background: radial-gradient(circle,
-                        rgba(255,247,214,0.95) 0%,
-                        rgba(255,215,0,0.45) 38%,
-                        rgba(212,175,55,0) 70%);
+                        rgba(255,252,240,1) 0%,
+                        rgba(255,230,120,0.72) 26%,
+                        rgba(255,215,0,0.38) 48%,
+                        rgba(212,175,55,0) 72%);
             animation: fxFlash 620ms ease-out forwards;
         }
         @keyframes fxFlash {
@@ -429,12 +430,12 @@
             margin: calc(var(--w) / -2) 0 0 calc(var(--w) / -2);
             border-radius: 50%;
             background: var(--oro);
-            box-shadow: 0 0 7px 1px var(--oro);
+            box-shadow: 0 0 12px 3px var(--oro), 0 0 4px 1px #fff7d6;
             animation: fxChispa var(--dur) cubic-bezier(0.1, 0.6, 0.22, 1) forwards;
         }
         @keyframes fxChispa {
             0%   { transform: translate(0, 0) scale(1); opacity: 1; }
-            68%  { opacity: 1; }
+            74%  { opacity: 1; }
             100% { transform: translate(var(--dx), calc(var(--dy) + var(--caida))) scale(0.2);
                    opacity: 0; }
         }
@@ -680,24 +681,49 @@
             overflow: hidden;
             opacity: 0;
             transform: translateY(15px);
-            animation: btnReveal 0.8s ease forwards;
+            /* Entra una vez, y después respira para siempre, como el de "abrir sobre" */
+            animation: btnReveal 0.8s ease forwards,
+                       btnGoldLatido 3.6s ease-in-out infinite;
         }
-        .btn-gold:nth-child(1) { animation-delay: 1.0s; }
-        .btn-gold:nth-child(2) { animation-delay: 1.15s; }
-        .btn-gold:nth-child(3) { animation-delay: 1.3s; }
-        .btn-gold:nth-child(4) { animation-delay: 1.45s; }
+        /* Escalonados, para que sea una ola y no un parpadeo al unísono */
+        .btn-gold:nth-child(1) { animation-delay: 1.00s, 2.0s; }
+        .btn-gold:nth-child(2) { animation-delay: 1.15s, 2.4s; }
+        .btn-gold:nth-child(3) { animation-delay: 1.30s, 2.8s; }
+        .btn-gold:nth-child(4) { animation-delay: 1.45s, 3.2s; }
 
         @keyframes btnReveal { to { opacity: 1; transform: translateY(0); } }
 
+        /* El halo que respira y el filete que se enciende */
+        @keyframes btnGoldLatido {
+            0%, 100% {
+                box-shadow: 0 0 0 rgba(212,175,55,0);
+                border-color: rgba(212,175,55,0.55);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(212,175,55,0.30),
+                            inset 0 0 14px rgba(212,175,55,0.10);
+                border-color: rgba(247,227,156,0.92);
+            }
+        }
+
+        /* El destello que cruza el botón, ahora solo, sin esperar al dedo */
         .btn-gold::before {
             content: '';
             position: absolute;
             top: 0; left: -100%;
             width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.15), transparent);
-            transition: 0.6s;
+            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.22), transparent);
+            animation: btnGoldBarrido 5.4s ease-in-out infinite;
         }
-        .btn-gold:hover::before { left: 100%; }
+        .btn-gold:nth-child(1)::before { animation-delay: 2.2s; }
+        .btn-gold:nth-child(2)::before { animation-delay: 2.8s; }
+        .btn-gold:nth-child(3)::before { animation-delay: 3.4s; }
+        .btn-gold:nth-child(4)::before { animation-delay: 4.0s; }
+
+        @keyframes btnGoldBarrido {
+            0%        { left: -100%; }
+            32%, 100% { left: 100%; }
+        }
 
         .btn-gold:hover, .btn-gold:active {
             background: rgba(212,175,55,0.18);
@@ -1199,11 +1225,18 @@
                progreso real. Nada de eso desplaza nada. */
 
             /* Entradas: directo a su estado final, sin recorrido */
-            .reveal, .btn-gold, .btn-skip {
+            .reveal, .btn-skip {
                 opacity: 1 !important;
                 transform: none !important;
                 animation: none !important;
             }
+            /* Los botones de la tarjeta no se desplazan, pero siguen respirando */
+            .btn-gold {
+                opacity: 1 !important;
+                transform: none !important;
+                animation: btnGoldLatido 3.6s ease-in-out infinite !important;
+            }
+            .btn-gold::before { animation: none !important; }
             #screen-card.active, .modal-card { animation: none !important; }
 
             /* Nada de empujoncitos al pasar el dedo o el ratón */
@@ -1957,7 +1990,8 @@
                 ch.style.setProperty('--dx', (Math.cos(ang) * dist).toFixed(1) + 'px');
                 ch.style.setProperty('--dy', (Math.sin(ang) * dist).toFixed(1) + 'px');
                 ch.style.setProperty('--caida', (calma ? 22 : 34 + Math.random() * 54).toFixed(0) + 'px');
-                ch.style.setProperty('--oro', oro());
+                // Casi la mitad salen blancas incandescentes: eso es lo que ilumina
+                ch.style.setProperty('--oro', Math.random() < 0.45 ? '#fff7d6' : oro());
                 ch.style.setProperty('--w', (3.5 + Math.random() * 3.5).toFixed(1) + 'px');
                 ch.style.setProperty('--dur', dur.toFixed(2) + 's');
                 burst.appendChild(ch);
@@ -1973,7 +2007,7 @@
 
             const destinoX = (x !== undefined) ? x : W() * (0.2 + Math.random() * 0.6);
             const alto     = H() * (0.70 + Math.random() * 0.14);   // revienta arriba, sin tapar el texto
-            const dur      = (calma ? 2.4 : 1.65) + Math.random() * 0.4;  // lento, para seguirlo con la vista
+            const dur      = (calma ? 2.0 : 1.32) + Math.random() * 0.3;  // rápido, pero con cola suficiente para leerse
 
             const cohete = document.createElement('div');
             cohete.className = 'fx-cohete';
