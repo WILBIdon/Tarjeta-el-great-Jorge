@@ -364,23 +364,43 @@
         }
         .fx-capa.encendida { display: block; }
 
-        /* ── El cohete que sube ── */
+        /* ── El cohete que sube ──
+           La estela mide 62 px y la curva es de desaceleración suave, no de
+           bala. Con la versión anterior (3x28 px y arranque a 1.600 px/s) el
+           cohete avanzaba 27 px por fotograma: apenas se solapaba consigo
+           mismo, así que se leía como un parpadeo y no como una estela. */
         .fx-cohete {
             position: absolute;
             bottom: 0;
-            width: 3px;
-            height: 28px;
-            margin-left: -1.5px;
-            border-radius: 3px;
-            background: linear-gradient(to top, rgba(255,215,0,0) 0%, var(--oro) 100%);
-            box-shadow: 0 0 9px 1px var(--oro);
-            animation: fxSubir var(--dur) cubic-bezier(0.18, 0.72, 0.36, 1) forwards;
+            width: 4px;
+            height: 62px;
+            margin-left: -2px;
+            border-radius: 4px;
+            transform-origin: top center;     /* la cola se estira detrás de la cabeza */
+            background: linear-gradient(to top,
+                        rgba(255,215,0,0) 0%,
+                        rgba(255,215,0,0.30) 40%,
+                        var(--oro) 82%,
+                        #fff7d6 100%);
+            box-shadow: 0 0 16px 2px var(--oro);
+            animation: fxSubir var(--dur) cubic-bezier(0.33, 0.66, 0.66, 1) forwards;
+        }
+        /* La cabeza incandescente */
+        .fx-cohete::after {
+            content: '';
+            position: absolute;
+            top: -5px; left: 50%;
+            width: 10px; height: 10px;
+            margin-left: -5px;
+            border-radius: 50%;
+            background: #fff7d6;
+            box-shadow: 0 0 14px 5px var(--oro);
         }
         @keyframes fxSubir {
-            0%   { transform: translateY(0)                      scaleY(0.5); opacity: 0; }
-            14%  {                                                            opacity: 1; }
-            82%  {                                                            opacity: 1; }
-            100% { transform: translateY(calc(-1 * var(--alto))) scaleY(1.15); opacity: 0; }
+            0%   { transform: translateY(0)                      scaleY(0.45); opacity: 0; }
+            10%  {                                                             opacity: 1; }
+            88%  {                                                             opacity: 1; }
+            100% { transform: translateY(calc(-1 * var(--alto))) scaleY(1.2);  opacity: 0; }
         }
 
         /* ── El estallido ── */
@@ -399,7 +419,7 @@
         }
         @keyframes fxFlash {
             0%   { transform: scale(0.25); opacity: 0.95; }
-            100% { transform: scale(13);   opacity: 0; }
+            100% { transform: scale(17);   opacity: 0; }
         }
 
         .fx-chispa {
@@ -1879,8 +1899,8 @@
         const esMovil = window.innerWidth < 500;
         const calma   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        const POR_BURST = calma ? 14 : (esMovil ? 26 : 38);
-        const ALCANCE   = calma ? 46 : (esMovil ? 74 : 108);
+        const POR_BURST = calma ? 16 : (esMovil ? 30 : 44);
+        const ALCANCE   = calma ? 60 : (esMovil ? 105 : 150);
         const CADENCIA  = calma ? 5200 : (esMovil ? 2300 : 1850);
 
         const W = () => window.innerWidth;
@@ -1908,9 +1928,9 @@
                 ch.className = 'fx-chispa';
                 ch.style.setProperty('--dx', (Math.cos(ang) * dist).toFixed(1) + 'px');
                 ch.style.setProperty('--dy', (Math.sin(ang) * dist).toFixed(1) + 'px');
-                ch.style.setProperty('--caida', (calma ? 10 : 28 + Math.random() * 46).toFixed(0) + 'px');
+                ch.style.setProperty('--caida', (calma ? 12 : 34 + Math.random() * 54).toFixed(0) + 'px');
                 ch.style.setProperty('--oro', oro());
-                ch.style.setProperty('--w', (3 + Math.random() * 3).toFixed(1) + 'px');
+                ch.style.setProperty('--w', (3.5 + Math.random() * 3.5).toFixed(1) + 'px');
                 ch.style.setProperty('--dur', dur.toFixed(2) + 's');
                 burst.appendChild(ch);
             }
@@ -1925,7 +1945,7 @@
 
             const destinoX = (x !== undefined) ? x : W() * (0.2 + Math.random() * 0.6);
             const alto     = H() * (0.70 + Math.random() * 0.14);   // revienta arriba, sin tapar el texto
-            const dur      = 1.25 + Math.random() * 0.35;
+            const dur      = 1.65 + Math.random() * 0.4;    // lento, para poder seguirlo con la vista
 
             // Con menos movimiento no hay cohete: el estallido aparece y ya
             if (calma) { estallar(destinoX, H() - alto); return; }
