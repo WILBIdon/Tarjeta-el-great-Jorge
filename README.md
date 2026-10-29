@@ -130,6 +130,38 @@ Por eso el fundido de volumen al entrar la tarjeta es corto (0.16 → 0.35 en
 
 El MP3 entero sigue en `originales/` por si algún día se quiere la intro.
 
+## 🔎 Diagnóstico en un móvil
+
+A un teléfono ajeno no se le puede enchufar un depurador. Para eso, añadir
+`?diag=1` a la URL enciende un panel con el estado real del aparato:
+
+```
+https://<la-url>/?diag=1
+```
+
+```
+pantalla   390x844  dpr 3
+lienzo     780x1688
+encendido  sí
+display    block
+menos mov. no
+fps        60
+pirotecnia animando
+video1     mudo
+tarjeta    visible
+```
+
+Sin `?diag=1` el panel no existe, así que los invitados nunca lo ven.
+
+Qué mirar si la pirotecnia no aparece:
+- `menos mov. SÍ` → el teléfono pide menos movimiento (en iPhone **el modo de
+  bajo consumo lo activa solo**). Se ve el rocío dorado fijo en vez de los
+  estallidos: es a propósito.
+- `encendido NO` o `lienzo NO EXISTE` → el canvas no llegó a montarse.
+- `fps 0` → el navegador congeló las animaciones (pestaña en segundo plano,
+  ahorro de batería).
+- `pirotecnia PARADA` con todo lo demás bien → el bucle murió; es un fallo real.
+
 ## Despliegue en Railway
 
 Repositorio: https://github.com/WILBIdon/Tarjeta-el-great-Jorge
@@ -168,5 +200,14 @@ host que da Railway.
   Importante: en iPhone, el **modo de bajo consumo activa esa preferencia solo**,
   así que ahí cae mucha gente sin haberlo pedido.
 - Pirotecnia en `<canvas>`: cohetes que suben decelerando y revientan en oro.
-  Tocar la tarjeta lanza uno extra. El halo se hace con doble trazo en modo
-  aditivo en vez de `shadowBlur`, que en móvil es mucho más caro.
+  Tocar la tarjeta lanza uno extra. Se dibuja **solo con primitivas que no
+  fallan en ningún móvil** (`clearRect` + `source-over` + `globalAlpha`): nada
+  de `lighter`, `destination-out` ni `shadowBlur`, que se ven preciosos en
+  escritorio pero se caen en muchas GPU de Android. El halo sale de un doble
+  trazo (ancho y tenue + fino y vivo) y la estela de un desenfoque de
+  movimiento. El canvas cuelga del `<body>`, no de la tarjeta, porque la
+  tarjeta tiene un `transform` y eso reencuadra a los hijos `position: fixed`.
+- El primer video arranca **mudo en móvil**: ningún navegador deja sonar audio
+  sin un toque previo del usuario. Cuando pasa, aparece *"Toca para el sonido"*
+  y basta tocar en cualquier punto del video. Ese toque además desbloquea el
+  audio del segundo video y de la música.

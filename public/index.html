@@ -298,6 +298,63 @@
         }
         @keyframes fadeInSkip { to { opacity: 1; } }
 
+        /* ═══ TOCA PARA EL SONIDO ═══
+           El móvil prohíbe el audio sin un toque previo del usuario, así que
+           el primer video arranca mudo. Esto le ofrece recuperarlo. */
+        .btn-sonido {
+            position: absolute;
+            bottom: 30px; left: 24px;
+            z-index: 10;
+            padding: 10px 20px;
+            border: 1px solid rgba(212,175,55,0.6);
+            border-radius: 2px;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: var(--gold-light);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            animation: latidoSonido 2.2s ease-in-out infinite;
+        }
+        .btn-sonido.visible { display: inline-flex; }
+        .btn-sonido:active { transform: scale(0.97); }
+
+        @keyframes latidoSonido {
+            0%, 100% { box-shadow: 0 0 0 rgba(212,175,55,0); }
+            50%      { box-shadow: 0 0 18px rgba(212,175,55,0.45); }
+        }
+
+        /* ═══ DIAGNÓSTICO (solo con ?diag=1 en la URL) ═══ */
+        #diag {
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 99999;
+            background: rgba(0,0,0,0.82);
+            color: #7CFC9B;
+            font: 11px/1.45 ui-monospace, Menlo, Consolas, monospace;
+            padding: 8px 10px;
+            white-space: pre;
+            pointer-events: none;
+            max-width: 100%;
+        }
+
+        /* ═══ LIENZO DE LA PIROTECNIA ═══ */
+        #fxCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 250;          /* sobre la tarjeta (20), bajo los modales (300) */
+            display: none;
+        }
+        #fxCanvas.encendido { display: block; }
+
         /* ═══ FUNDIDO A NEGRO (video 2 → tarjeta) ═══ */
         #fundido-negro {
             position: fixed;
@@ -987,6 +1044,10 @@
                 bottom: calc(30px + env(safe-area-inset-bottom));
                 right: calc(24px + env(safe-area-inset-right));
             }
+            .btn-sonido {
+                bottom: calc(30px + env(safe-area-inset-bottom));
+                left: calc(24px + env(safe-area-inset-left));
+            }
         }
 
         /* Áreas táctiles cómodas */
@@ -1013,7 +1074,7 @@
             .sparkle, .text-gold,
             .name-box::before, .quote-box::before, .quote-box::after,
             .modal-shimmer, .music-btn.playing i,
-            .reloj-cuerpo, .arena, .hilo {
+            .reloj-cuerpo, .arena, .hilo, .btn-sonido {
                 animation: none !important;
             }
 
@@ -1088,6 +1149,9 @@
 <div id="screen-v1" class="pantalla">
     <video id="video1" class="video-full" src="intro-1.mp4?v=1"
            playsinline webkit-playsinline preload="auto"></video>
+    <button class="btn-sonido" id="btnSonido" onclick="activarSonido(event)">
+        <i class="fas fa-volume-mute"></i> Toca para el sonido
+    </button>
     <button class="btn-skip" onclick="saltarVideo(1)">
         Saltar <i class="fas fa-forward"></i>
     </button>
@@ -1128,6 +1192,13 @@
 <!-- Fundido a negro que da paso a la tarjeta -->
 <div id="fundido-negro"></div>
 
+<!-- Lienzo de la pirotecnia.
+     Va suelto en el <body> a propósito: dentro de #screen-card quedaba bajo un
+     ancestro con transform, y eso convierte al ancestro en el marco de
+     referencia de los hijos position:fixed. En escritorio no se notaba; en
+     móvil es justo el tipo de cosa que se desalinea. -->
+<canvas id="fxCanvas"></canvas>
+
 <!-- ═══════════════════════════════════════
      SCREEN 3: TARJETA
 ═══════════════════════════════════════ -->
@@ -1136,8 +1207,6 @@
     <button id="musicToggleBtn" class="music-btn" onclick="toggleMusic(event)" title="Reproducir/Pausar música">
         <i class="fas fa-music"></i>
     </button>
-
-    <canvas id="fxCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;"></canvas>
 
     <div class="bg-layer"></div>
 
@@ -1298,6 +1367,9 @@
     </div>
 </div>
 
+<!-- Diagnóstico: solo aparece si la URL lleva ?diag=1 -->
+<div id="diag" hidden></div>
+
 <!-- ═══════════════════════════════════════
      SCRIPTS
 ═══════════════════════════════════════ -->
@@ -1341,6 +1413,7 @@
     const loaderBarra    = document.getElementById('loaderBarra');
     const loaderProgreso = document.getElementById('loaderProgreso');
     const fundidoNegro   = document.getElementById('fundido-negro');
+    const btnSonido      = document.getElementById('btnSonido');
 
     let isMusicPlaying = false;
     let musicAvailable = !!CONFIG.music;
@@ -1364,17 +1437,35 @@
     }
 
     /* ── Reproduce con sonido; si el navegador lo bloquea, en silencio ── */
-    function reproducir(video, siNoSePuede) {
+    function reproducir(video, siNoSePuede, siQuedoMudo) {
         try { video.currentTime = 0; } catch (e) {}
         video.muted = false;
         const intento = video.play();
         if (intento && intento.catch) {
             intento.catch(() => {
+                // El navegador no deja sonar sin un toque previo: va en silencio
                 video.muted = true;
                 const segundo = video.play();
                 if (segundo && segundo.catch) segundo.catch(() => siNoSePuede && siNoSePuede());
+                if (siQuedoMudo) siQuedoMudo();
             });
         }
+    }
+
+    /* ── Recuperar el sonido del primer video ──
+       En móvil el audio sin gesto del usuario está prohibido, así que el primer
+       video arranca mudo. Un toque lo arregla, y de paso desbloquea el audio
+       para el segundo video y la música. */
+    function activarSonido(e) {
+        if (e) e.stopPropagation();
+        video1.muted = false;
+        const p = video1.play();
+        if (p && p.catch) p.catch(() => {});
+        if (btnSonido) btnSonido.classList.remove('visible');
+    }
+
+    function ofrecerSonido() {
+        if (btnSonido) btnSonido.classList.add('visible');
     }
 
     /* ══════════════════════════════════════
@@ -1406,7 +1497,7 @@
         const espera = Math.max(450, 1100 - (Date.now() - abierto));
         setTimeout(() => {
             mostrar(pV1);
-            reproducir(video1, alSobre);
+            reproducir(video1, alSobre, ofrecerSonido);
             ocultar(pLoader);
             precargarElResto();
         }, espera);
@@ -1443,6 +1534,12 @@
         if (musicAvailable) { bgMusic.preload = 'auto'; bgMusic.load(); }
     }
 
+    // Tocar en cualquier punto del video, no solo el botón, devuelve el sonido
+    pV1.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button')) return;
+        if (video1.muted) activarSonido();
+    });
+
     /* ══════════════════════════════════════
        2. EL SOBRE · espera el clic
     ══════════════════════════════════════ */
@@ -1450,6 +1547,7 @@
 
     function alSobre() {
         if (pSobre.classList.contains('activa')) return;
+        if (btnSonido) btnSonido.classList.remove('visible');
         mostrar(pSobre);                       // aparece debajo
         ocultar(pV1, () => video1.pause());    // y el video se desvanece encima
         precargarElResto();
@@ -1636,35 +1734,79 @@
     }
 
     /* ══════════════════════════════════════
+       DIAGNÓSTICO
+       Se enciende solo con ?diag=1 en la URL. Sirve para ver qué está
+       pasando en un teléfono al que no se puede conectar un depurador.
+    ══════════════════════════════════════ */
+    const DIAG = new URLSearchParams(location.search).has('diag');
+    let diagFps = 0, diagCuenta = 0, diagUltimo = performance.now();
+
+    function marcarFotograma() {
+        diagCuenta++;
+        const ahora = performance.now();
+        if (ahora - diagUltimo >= 1000) {
+            diagFps = diagCuenta;
+            diagCuenta = 0;
+            diagUltimo = ahora;
+        }
+    }
+
+    if (DIAG) {
+        const panel = document.getElementById('diag');
+        panel.hidden = false;
+        setInterval(() => {
+            const c = document.getElementById('fxCanvas');
+            const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            panel.textContent =
+                'pantalla   ' + innerWidth + 'x' + innerHeight + '  dpr ' + (window.devicePixelRatio || 1) + '\n' +
+                'lienzo     ' + (c ? c.width + 'x' + c.height : 'NO EXISTE') + '\n' +
+                'encendido  ' + (c && c.classList.contains('encendido') ? 'sí' : 'NO') + '\n' +
+                'display    ' + (c ? getComputedStyle(c).display : '-') + '\n' +
+                'menos mov. ' + (reduce ? 'SÍ  ← apaga la pirotecnia' : 'no') + '\n' +
+                'fps        ' + diagFps + '\n' +
+                'pirotecnia ' + (window.__fxVivo ? 'animando' : 'PARADA') + '\n' +
+                'video1     ' + (video1.muted ? 'mudo' : 'con sonido') + '\n' +
+                'tarjeta    ' + (screenCard.classList.contains('active') ? 'visible' : 'no');
+        }, 500);
+    }
+
+    /* ══════════════════════════════════════
        PIROTECNIA DORADA
-       Cohetes que suben discretos y revientan en oro
+       Cohetes que suben discretos y revientan en oro.
+
+       Se dibuja SOLO con primitivas que no fallan en ningún móvil:
+       clearRect + source-over + globalAlpha. Nada de 'lighter',
+       'destination-out' ni shadowBlur — esa combinación se ve preciosa
+       en escritorio pero es justo la que se cae en muchas GPU de Android.
+       El brillo se consigue con doble trazo (uno ancho y tenue, otro fino
+       y vivo) y la estela con desenfoque de movimiento: una línea desde
+       donde estaba la chispa unos fotogramas atrás hasta donde está ahora.
     ══════════════════════════════════════ */
     function initFireworks() {
         const canvas = document.getElementById('fxCanvas');
         if (!canvas) return;
+        canvas.classList.add('encendido');
 
-        // Quien pide menos movimiento no se queda sin nada: recibe la versión quieta
         const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
         const ctx = canvas.getContext('2d');
-        const GOLDS = ['#fff3c4', '#f7e39c', '#ffd700', '#d4af37', '#e8b84b'];
+
+        const GOLDS = ['#fff7d6', '#f7e39c', '#ffd700', '#e8b84b', '#d4af37'];
 
         let W, H, dpr;
         const cohetes = [];
         const chispas = [];
 
-        // Menos pólvora en pantallas pequeñas, para que el móvil no sufra
         const esMovil    = window.innerWidth < 500;
-        const POR_BURST  = esMovil ? 46 : 70;
-        const MAX_CHISP  = esMovil ? 260 : 460;
+        const POR_BURST  = esMovil ? 44 : 66;
+        const MAX_CHISP  = esMovil ? 300 : 500;
         const MAX_COHETE = 2;
 
         function resize() {
             dpr = Math.min(window.devicePixelRatio || 1, 2);
             W = window.innerWidth;
             H = window.innerHeight;
-            canvas.width  = W * dpr;
-            canvas.height = H * dpr;
+            canvas.width  = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
             canvas.style.width  = W + 'px';
             canvas.style.height = H + 'px';
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1676,13 +1818,10 @@
 
         /* ── Versión quieta: un rocío dorado fijo, cero movimiento ──
            Para quien tiene activado "reducir movimiento" (o el modo de bajo
-           consumo del iPhone, que lo activa solo). La tarjeta conserva el
-           brillo sin que nada se mueva ni parpadee. */
+           consumo del iPhone, que lo activa solo). */
         function rocioQuieto() {
             resize();
             ctx.clearRect(0, 0, W, H);
-            ctx.globalCompositeOperation = 'lighter';
-
             const puntos = esMovil ? 28 : 44;
             for (let i = 0; i < puntos; i++) {
                 const x = Math.random() * W;
@@ -1690,19 +1829,17 @@
                 const r = 0.9 + Math.random() * 1.9;
 
                 const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
-                halo.addColorStop(0, 'rgba(247,227,156,0.28)');
+                halo.addColorStop(0, 'rgba(247,227,156,0.30)');
                 halo.addColorStop(1, 'rgba(212,175,55,0)');
                 ctx.globalAlpha = 1;
                 ctx.fillStyle = halo;
                 ctx.beginPath(); ctx.arc(x, y, r * 7, 0, Math.PI * 2); ctx.fill();
 
-                ctx.globalAlpha = 0.45 + Math.random() * 0.45;
+                ctx.globalAlpha = 0.5 + Math.random() * 0.45;
                 ctx.fillStyle = oro();
                 ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
             }
-
             ctx.globalAlpha = 1;
-            ctx.globalCompositeOperation = 'source-over';
         }
 
         if (sinMovimiento) {
@@ -1724,7 +1861,6 @@
 
             cohetes.push({
                 x: salidaX, y: H + 10,
-                px: salidaX, py: H + 10,
                 destinoY,
                 vx: (destinoX - salidaX) / frames,
                 vy: -v0,
@@ -1735,37 +1871,34 @@
 
         /* ── Estallido: corona de chispas doradas ── */
         function estallar(x, y, color) {
-            // Resplandor del momento del estallido
-            chispas.push({ tipo: 'flash', x, y, r: 3, alpha: 0.9, decay: 0.12 });
+            chispas.push({ tipo: 'flash', x, y, r: 3, alpha: 0.95, decay: 0.11 });
 
             for (let i = 0; i < POR_BURST; i++) {
-                const ang = (Math.PI * 2 * i) / POR_BURST + (Math.random() - 0.5) * 0.25;
-                // Dos coronas, una dentro de la otra, para dar volumen
+                const ang  = (Math.PI * 2 * i) / POR_BURST + (Math.random() - 0.5) * 0.25;
                 const base = Math.random() < 0.6 ? 2.6 : 4.8;
                 const vel  = base * (0.6 + Math.random() * 0.7);
                 chispas.push({
                     tipo: 'chispa',
-                    x, y, px: x, py: y,
+                    x, y,
                     vx: Math.cos(ang) * vel,
                     vy: Math.sin(ang) * vel,
-                    r: 1.7 + Math.random() * 1.6,
+                    r: 1.8 + Math.random() * 1.6,
                     alpha: 1,
                     decay: 0.0062 + Math.random() * 0.0075,
                     parpadeo: Math.random() < 0.4,
-                    color: Math.random() < 0.3 ? '#fff3c4' : color
+                    color: Math.random() < 0.35 ? '#fff7d6' : color
                 });
             }
 
-            // Brasas que se descuelgan lento al final
             const brasas = esMovil ? 7 : 12;
             for (let i = 0; i < brasas; i++) {
                 const ang = Math.random() * Math.PI * 2;
                 chispas.push({
                     tipo: 'brasa',
-                    x, y, px: x, py: y,
+                    x, y,
                     vx: Math.cos(ang) * (0.5 + Math.random()),
                     vy: Math.sin(ang) * (0.5 + Math.random()),
-                    r: 1.2 + Math.random() * 1.3,
+                    r: 1.3 + Math.random() * 1.3,
                     alpha: 0.95,
                     decay: 0.003 + Math.random() * 0.0035,
                     parpadeo: true,
@@ -1776,7 +1909,7 @@
             if (chispas.length > MAX_CHISP) chispas.splice(0, chispas.length - MAX_CHISP);
         }
 
-        /* ── Primeras salvas al abrir la tarjeta, luego una cada tanto ── */
+        /* ── Primeras salvas, luego una cada tanto ── */
         setTimeout(() => lanzar(W * 0.33), 350);
         setTimeout(() => lanzar(W * 0.68), 1500);
 
@@ -1786,62 +1919,44 @@
         window.addEventListener('pagehide', () => clearInterval(intervalo));
 
         /* ── Un toque en la tarjeta lanza su propio cohete ── */
-        document.getElementById('screen-card').addEventListener('pointerdown', (e) => {
-            if (e.target.closest('button, a, input, select, .modal-overlay')) return;
-            lanzar(e.clientX);
-        });
+        const tarjeta = document.getElementById('screen-card');
+        if (tarjeta) {
+            tarjeta.addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button, a, input, select, .modal-overlay')) return;
+                lanzar(e.clientX);
+            });
+        }
 
-        /* ── Traza un segmento con halo.
-             Dos trazos (uno ancho y tenue, otro fino y vivo) en modo aditivo
-             dan el mismo brillo que shadowBlur y cuestan mucho menos en móvil. ── */
+        /* ── Un segmento con halo: ancho y tenue + fino y vivo ── */
         function trazo(x0, y0, x1, y1, color, ancho, alpha) {
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = color;
             ctx.lineCap = 'round';
+            ctx.strokeStyle = color;
 
-            ctx.globalAlpha = alpha * 0.24;
+            ctx.globalAlpha = alpha * 0.28;
             ctx.lineWidth = ancho * 3.6;
-            ctx.beginPath();
-            ctx.moveTo(x0, y0);
-            ctx.lineTo(x1, y1);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
 
             ctx.globalAlpha = alpha;
             ctx.lineWidth = ancho;
-            ctx.beginPath();
-            ctx.moveTo(x0, y0);
-            ctx.lineTo(x1, y1);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
         }
 
         function animate() {
-            // Borrado parcial: deja estela sin oscurecer el fondo
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = 'rgba(0,0,0,0.30)';
-            ctx.fillRect(0, 0, W, H);
+            ctx.clearRect(0, 0, W, H);
 
-            // Todo el oro se suma: así brilla de verdad
-            ctx.globalCompositeOperation = 'lighter';
-
-            /* ── Cohetes: discretos, el protagonista es el estallido ── */
+            /* ── Cohetes ── */
             for (let i = cohetes.length - 1; i >= 0; i--) {
                 const c = cohetes[i];
-                c.px = c.x; c.py = c.y;
                 c.x += c.vx;
                 c.y += c.vy;
                 c.vy += c.g;
 
-                trazo(c.px, c.py, c.x, c.y, c.color, 1.4, 0.32);
+                // Estela por desenfoque de movimiento: de donde venía a donde está
+                trazo(c.x - c.vx * 6, c.y - c.vy * 6, c.x, c.y, c.color, 1.5, 0.42);
 
-                ctx.globalAlpha = 0.5;
-                ctx.fillStyle = '#fff6d0';
-                ctx.shadowColor = c.color;
-                ctx.shadowBlur = 8;
-                ctx.beginPath();
-                ctx.arc(c.x, c.y, 1.5, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.globalAlpha = 0.85;
+                ctx.fillStyle = '#fff7d6';
+                ctx.beginPath(); ctx.arc(c.x, c.y, 1.9, 0, Math.PI * 2); ctx.fill();
 
                 if (c.vy >= -0.4 || c.y <= c.destinoY) {
                     estallar(c.x, c.y, c.color);
@@ -1858,22 +1973,18 @@
                     p.alpha -= p.decay;
                     if (p.alpha <= 0) { chispas.splice(i, 1); continue; }
                     const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-                    g.addColorStop(0,    'rgba(255,243,200,' + (p.alpha * 0.38).toFixed(3) + ')');
-                    g.addColorStop(0.4,  'rgba(212,175,55,'  + (p.alpha * 0.15).toFixed(3) + ')');
-                    g.addColorStop(1,    'rgba(212,175,55,0)');
+                    g.addColorStop(0,   'rgba(255,247,214,' + (p.alpha * 0.55).toFixed(3) + ')');
+                    g.addColorStop(0.4, 'rgba(212,175,55,'  + (p.alpha * 0.22).toFixed(3) + ')');
+                    g.addColorStop(1,   'rgba(212,175,55,0)');
                     ctx.globalAlpha = 1;
-                    ctx.shadowBlur = 0;
                     ctx.fillStyle = g;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
                     continue;
                 }
 
-                p.px = p.x; p.py = p.y;
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vx *= 0.978;                       // el aire las frena
+                p.vx *= 0.978;
                 p.vy *= 0.978;
                 p.vy += p.tipo === 'brasa' ? 0.013 : 0.030;
                 p.alpha -= p.decay;
@@ -1881,15 +1992,16 @@
                 if (p.alpha <= 0) { chispas.splice(i, 1); continue; }
 
                 let a = p.alpha;
-                if (p.parpadeo) a *= 0.4 + Math.random() * 0.6;
+                if (p.parpadeo) a *= 0.45 + Math.random() * 0.55;
 
-                trazo(p.px, p.py, p.x, p.y, p.color, Math.max(0.7, p.r * p.alpha), Math.max(0, a));
+                const largo = p.tipo === 'brasa' ? 2.5 : 5;
+                trazo(p.x - p.vx * largo, p.y - p.vy * largo, p.x, p.y,
+                      p.color, Math.max(0.8, p.r * p.alpha), Math.max(0, a));
             }
 
             ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
-            ctx.globalCompositeOperation = 'source-over';
-
+            window.__fxVivo = true;
+            if (DIAG) marcarFotograma();
             requestAnimationFrame(animate);
         }
 
