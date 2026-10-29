@@ -998,14 +998,53 @@
 
         .page, .card, .modal-card { overflow-x: hidden; }
 
-        /* Respeta a quien pide menos movimiento */
+        /* ═══════════════════════════════════
+           MENOS MOVIMIENTO
+           Se apaga el adorno que no para nunca, pero NO los fundidos:
+           un fundido de opacidad es justamente el reemplazo recomendado
+           del movimiento, no movimiento del que haya que protegerse.
+           (Ojo: en iPhone el modo de bajo consumo activa esta preferencia
+           solo, así que aquí cae mucha gente sin haberlo pedido.)
+        ═══════════════════════════════════ */
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+
+            /* Bucles decorativos: fuera */
+            .btn-enter, .btn-enter::before, .btn-enter i,
+            .sparkle, .text-gold,
+            .name-box::before, .quote-box::before, .quote-box::after,
+            .modal-shimmer, .music-btn.playing i,
+            .reloj-cuerpo, .arena, .hilo {
+                animation: none !important;
             }
-            .reveal, .btn-gold { opacity: 1 !important; transform: none !important; }
+
+            /* Entradas: directo a su estado final, sin recorrido */
+            .reveal, .btn-gold, .btn-skip {
+                opacity: 1 !important;
+                transform: none !important;
+                animation: none !important;
+            }
+            #screen-card.active, .modal-card { animation: none !important; }
+
+            /* Nada de empujoncitos al pasar el dedo o el ratón */
+            .btn-enter:hover, .btn-gold:hover, .btn-gold:active,
+            .btn-modal:hover, .music-btn:hover, .color-swatch:hover {
+                transform: none !important;
+            }
+
+            /* La barra de carga deja de ir y venir: queda como marca fija */
+            .loader-barra.indeterminada span {
+                animation: none !important;
+                width: 100% !important;
+                opacity: 0.3;
+            }
+
+            /* Los destellos quedan como puntos quietos, no invisibles */
+            .sparkle { opacity: 0.45; }
+
+            /* Lo que SÍ se conserva, a propósito:
+               .pantalla  transition: opacity 0.7s   (fundido entre videos)
+               #fundido-negro transition: opacity 0.9s (paso a la tarjeta)
+               .loader-barra span transition: width   (progreso real)      */
         }
     </style>
 </head>
@@ -1603,7 +1642,9 @@
     function initFireworks() {
         const canvas = document.getElementById('fxCanvas');
         if (!canvas) return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        // Quien pide menos movimiento no se queda sin nada: recibe la versión quieta
+        const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         const ctx = canvas.getContext('2d');
         const GOLDS = ['#fff3c4', '#f7e39c', '#ffd700', '#d4af37', '#e8b84b'];
@@ -1632,6 +1673,43 @@
         resize();
 
         function oro() { return GOLDS[Math.floor(Math.random() * GOLDS.length)]; }
+
+        /* ── Versión quieta: un rocío dorado fijo, cero movimiento ──
+           Para quien tiene activado "reducir movimiento" (o el modo de bajo
+           consumo del iPhone, que lo activa solo). La tarjeta conserva el
+           brillo sin que nada se mueva ni parpadee. */
+        function rocioQuieto() {
+            resize();
+            ctx.clearRect(0, 0, W, H);
+            ctx.globalCompositeOperation = 'lighter';
+
+            const puntos = esMovil ? 28 : 44;
+            for (let i = 0; i < puntos; i++) {
+                const x = Math.random() * W;
+                const y = Math.random() * H * 0.78;
+                const r = 0.9 + Math.random() * 1.9;
+
+                const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 7);
+                halo.addColorStop(0, 'rgba(247,227,156,0.28)');
+                halo.addColorStop(1, 'rgba(212,175,55,0)');
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = halo;
+                ctx.beginPath(); ctx.arc(x, y, r * 7, 0, Math.PI * 2); ctx.fill();
+
+                ctx.globalAlpha = 0.45 + Math.random() * 0.45;
+                ctx.fillStyle = oro();
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        if (sinMovimiento) {
+            rocioQuieto();
+            window.addEventListener('resize', rocioQuieto);
+            return;
+        }
 
         /* ── Cohete: sube decelerando hasta su altura y revienta ── */
         function lanzar(x) {

@@ -160,7 +160,13 @@ host que da Railway.
 - Sin build ni dependencias de frontend: un solo HTML autocontenido.
 - Fuentes: Cinzel (art déco), Cormorant Garamond, Montserrat.
 - Responsive de 320 px a escritorio, con ajustes para notch y horizontal.
-- Respeta `prefers-reduced-motion` (apaga la pirotecnia y las animaciones).
+- Respeta `prefers-reduced-motion`, pero **sin dejar la invitación muda**:
+  se apagan los bucles decorativos (pulsos, destellos, brillos, el reloj) y la
+  pirotecnia pasa a un rocío dorado fijo, sin nada que se mueva ni parpadee.
+  Los **fundidos de opacidad se conservan a propósito**: un fundido es el
+  reemplazo recomendado del movimiento, no movimiento del que protegerse.
+  Importante: en iPhone, el **modo de bajo consumo activa esa preferencia solo**,
+  así que ahí cae mucha gente sin haberlo pedido.
 - Pirotecnia en `<canvas>`: cohetes que suben decelerando y revientan en oro.
   Tocar la tarjeta lanza uno extra. El halo se hace con doble trazo en modo
   aditivo en vez de `shadowBlur`, que en móvil es mucho más caro.
