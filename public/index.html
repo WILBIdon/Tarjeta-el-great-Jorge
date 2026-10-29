@@ -665,10 +665,19 @@
             width: 100%;
             padding: 0.82rem 1rem;
             border-radius: 2px;
-            border: 1px solid rgba(212,175,55,0.55);
-            background: rgba(8, 6, 3, 0.55);
+            border: 1px solid var(--gold-mid);
+            /* El mismo degradado dorado del botón de "abrir sobre", sobre una
+               base oscura para que el texto siga leyéndose encima del art déco */
+            background: linear-gradient(135deg, rgba(140,109,31,0.35) 0%, rgba(212,175,55,0.14) 50%, rgba(140,109,31,0.35) 100%),
+                        rgba(8, 6, 3, 0.55);
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
+            /* Halo en reposo: esto era lo que faltaba. Antes arrancaba de cero
+               y por eso no se veía nada hasta la mitad del pulso. */
+            box-shadow:
+                0 0 30px rgba(212,175,55,0.25),
+                0 0 60px rgba(212,175,55,0.10),
+                inset 0 1px 0 rgba(255,255,255,0.14);
             color: var(--gold-light);
             font-family: 'Cinzel', serif;
             font-weight: 500;
@@ -681,59 +690,43 @@
             overflow: hidden;
             opacity: 0;
             transform: translateY(15px);
-            /* Entra una vez, y después respira para siempre, como el de "abrir sobre" */
+            /* Las mismas animaciones del botón de "abrir sobre", no variantes */
             animation: btnReveal 0.8s ease forwards,
-                       btnGoldLatido 3.6s ease-in-out infinite;
+                       btnPulse 2.8s ease-in-out infinite;
         }
         /* Escalonados, para que sea una ola y no un parpadeo al unísono */
-        .btn-gold:nth-child(1) { animation-delay: 1.00s, 2.0s; }
-        .btn-gold:nth-child(2) { animation-delay: 1.15s, 2.4s; }
-        .btn-gold:nth-child(3) { animation-delay: 1.30s, 2.8s; }
-        .btn-gold:nth-child(4) { animation-delay: 1.45s, 3.2s; }
+        .btn-gold:nth-child(1) { animation-delay: 1.00s, 0.2s; }
+        .btn-gold:nth-child(2) { animation-delay: 1.15s, 0.9s; }
+        .btn-gold:nth-child(3) { animation-delay: 1.30s, 1.6s; }
+        .btn-gold:nth-child(4) { animation-delay: 1.45s, 2.3s; }
 
         @keyframes btnReveal { to { opacity: 1; transform: translateY(0); } }
 
-        /* El halo que respira y el filete que se enciende */
-        @keyframes btnGoldLatido {
-            0%, 100% {
-                box-shadow: 0 0 0 rgba(212,175,55,0);
-                border-color: rgba(212,175,55,0.55);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(212,175,55,0.30),
-                            inset 0 0 14px rgba(212,175,55,0.10);
-                border-color: rgba(247,227,156,0.92);
-            }
+        /* El doble filete interior, igual que en "abrir sobre" */
+        .btn-gold::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(247,227,156,0.35);
+            pointer-events: none;
         }
 
-        /* El relámpago que cruza el botón, solo, sin esperar al dedo.
-           Se mueve con transform y no con left: left recalcula el diseño en
-           cada fotograma y el destello se arrastra; transform va directo al
-           compositor y sale limpio. La banda es estrecha e inclinada, para
-           que se lea como un relámpago y no como un lavado de luz. */
+        /* Y el mismo destello que lo cruza, con los mismos valores */
         .btn-gold::before {
             content: '';
             position: absolute;
-            top: -20%; left: 0;
-            width: 42%; height: 140%;
-            background: linear-gradient(90deg,
-                        transparent 0%,
-                        rgba(247,227,156,0.08) 30%,
-                        rgba(255,251,230,0.55) 50%,
-                        rgba(247,227,156,0.08) 70%,
-                        transparent 100%);
-            transform: translateX(-130%) skewX(-20deg);
-            animation: btnGoldBarrido 5.4s ease-in-out infinite;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.28), transparent);
+            animation: btnShimmer 3.2s ease-in-out infinite;
         }
-        .btn-gold:nth-child(1)::before { animation-delay: 2.2s; }
-        .btn-gold:nth-child(2)::before { animation-delay: 2.8s; }
-        .btn-gold:nth-child(3)::before { animation-delay: 3.4s; }
-        .btn-gold:nth-child(4)::before { animation-delay: 4.0s; }
+        .btn-gold:nth-child(1)::before { animation-delay: 0.4s; }
+        .btn-gold:nth-child(2)::before { animation-delay: 1.2s; }
+        .btn-gold:nth-child(3)::before { animation-delay: 2.0s; }
+        .btn-gold:nth-child(4)::before { animation-delay: 2.8s; }
 
-        @keyframes btnGoldBarrido {
-            0%        { transform: translateX(-130%) skewX(-20deg); }
-            30%, 100% { transform: translateX(340%)  skewX(-20deg); }
-        }
+        /* Y el icono parpadea, como el del sobre */
+        .btn-gold i { animation: iconTwinkle 2.4s ease-in-out infinite; }
 
         .btn-gold:hover, .btn-gold:active {
             background: rgba(212,175,55,0.18);
@@ -1217,6 +1210,7 @@
                un texto no son movimiento del que haya que proteger a nadie, y
                son justo lo que le da vida a la tarjeta. */
             .btn-enter::before,          /* destello que cruza el botón */
+            .btn-gold::before,           /* y el de los botones de la tarjeta */
             .modal-shimmer,              /* barrido sobre el modal */
             .music-btn.playing i,        /* la nota girando */
             .reloj-cuerpo,               /* el reloj dando la vuelta */
@@ -1244,9 +1238,8 @@
             .btn-gold {
                 opacity: 1 !important;
                 transform: none !important;
-                animation: btnGoldLatido 3.6s ease-in-out infinite !important;
+                animation: btnPulse 2.8s ease-in-out infinite !important;
             }
-            .btn-gold::before { animation: none !important; }
             #screen-card.active, .modal-card { animation: none !important; }
 
             /* Nada de empujoncitos al pasar el dedo o el ratón */
