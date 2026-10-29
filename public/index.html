@@ -706,13 +706,23 @@
             }
         }
 
-        /* El destello que cruza el botón, ahora solo, sin esperar al dedo */
+        /* El relámpago que cruza el botón, solo, sin esperar al dedo.
+           Se mueve con transform y no con left: left recalcula el diseño en
+           cada fotograma y el destello se arrastra; transform va directo al
+           compositor y sale limpio. La banda es estrecha e inclinada, para
+           que se lea como un relámpago y no como un lavado de luz. */
         .btn-gold::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(247,227,156,0.22), transparent);
+            top: -20%; left: 0;
+            width: 42%; height: 140%;
+            background: linear-gradient(90deg,
+                        transparent 0%,
+                        rgba(247,227,156,0.08) 30%,
+                        rgba(255,251,230,0.55) 50%,
+                        rgba(247,227,156,0.08) 70%,
+                        transparent 100%);
+            transform: translateX(-130%) skewX(-20deg);
             animation: btnGoldBarrido 5.4s ease-in-out infinite;
         }
         .btn-gold:nth-child(1)::before { animation-delay: 2.2s; }
@@ -721,8 +731,8 @@
         .btn-gold:nth-child(4)::before { animation-delay: 4.0s; }
 
         @keyframes btnGoldBarrido {
-            0%        { left: -100%; }
-            32%, 100% { left: 100%; }
+            0%        { transform: translateX(-130%) skewX(-20deg); }
+            30%, 100% { transform: translateX(340%)  skewX(-20deg); }
         }
 
         .btn-gold:hover, .btn-gold:active {
@@ -1703,8 +1713,33 @@
     }
 
     /* ── El clic del invitado: aquí se desbloquea el audio del navegador ── */
+    /* Los navegadores móviles solo dejan sonar un elemento de audio si se
+       le llamó play() durante un gesto real del usuario. La música arranca
+       después, con un temporizador, y ahí algunos la rechazan. Este truco
+       la reproduce y la pausa en el mismo instante del toque: el elemento
+       queda desbloqueado y el play() de más tarde ya pasa. */
+    function desbloquearAudio() {
+        if (!musicAvailable) return;
+        try {
+            bgMusic.muted = true;
+            const p = bgMusic.play();
+            if (p && p.then) {
+                p.then(() => {
+                    bgMusic.pause();
+                    bgMusic.currentTime = 0;
+                    bgMusic.muted = false;
+                }).catch(() => { bgMusic.muted = false; });
+            } else {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+                bgMusic.muted = false;
+            }
+        } catch (e) { bgMusic.muted = false; }
+    }
+
     function abrirSobre() {
         if (esperandoV2) return;
+        desbloquearAudio();
 
         if (video2Listo) { lanzarVideo2(); return; }
 
@@ -1783,8 +1818,19 @@
                 bgMusic.volume = vol;
             }, 45);
         }).catch(() => {
-            // Autoplay bloqueado: el botón queda listo para que lo toquen
+            // Bloqueada igual: el botón se ofrece, y un toque en la tarjeta también sirve
             musicBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            musicBtn.classList.remove('playing');
+            const reintento = () => {
+                bgMusic.volume = 0.35;
+                bgMusic.play().then(() => {
+                    isMusicPlaying = true;
+                    musicBtn.classList.add('playing');
+                    musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+                    screenCard.removeEventListener('pointerdown', reintento);
+                }).catch(() => {});
+            };
+            screenCard.addEventListener('pointerdown', reintento);
         });
     }
 
