@@ -58,6 +58,13 @@ Es una URL larga que termina en **`/exec`**:
 https://script.google.com/macros/s/AKfycb................/exec
 ```
 
+Pega esa URL en el navegador para comprobar que quedó viva. Debe responder:
+
+> Puente de confirmaciones activo. Esta dirección no se abre a mano: la usa la invitación.
+
+Si en vez de eso sale un error de Google, repasa el paso 4. **Abrirla no
+ensucia la hoja**: un GET sin datos no escribe nada.
+
 ### 5. Pegarla en la invitación
 
 En [`public/index.html`](../public/index.html), dentro del bloque `CONFIG`:
@@ -80,6 +87,7 @@ Si no aparece:
 | Síntoma | Causa casi siempre |
 |---|---|
 | No llega nada | La URL no termina en `/exec` (pegaste la de `/dev` o la de la hoja) |
+| Filas en blanco | No debería pasar: sin nombre no se escribe. Si aparecen, el código que está publicado es anterior a esta versión |
 | No llega nada | En el paso 4 quedó "Cualquier usuario **con cuenta de Google**" |
 | Llegaba y dejó de llegar | Editaste el script y no hiciste **Implementar → Administrar implementaciones → ✏️ → Versión: Nueva**. Sin eso la URL sigue sirviendo el código viejo |
 | Filas duplicadas | Alguien le dio dos veces a enviar; no es un fallo del script |

@@ -14,16 +14,37 @@ var CABECERA = ['Fecha', 'Nombre', 'Asistencia', 'Mensaje para Jorge'];
 
 /** La invitación manda un POST (sendBeacon o fetch). */
 function doPost(e) {
-  return guardar(e && e.parameter ? e.parameter : {});
+  return guardar(datos(e));
 }
 
-/** Plan C de la invitación: un GET con los datos en la URL. */
+/**
+ * Plan C de la invitación: un GET con los datos en la URL.
+ *
+ * Abrir la URL /exec en el navegador también es un GET, pero sin datos.
+ * Sin esta comprobación cada visita dejaría una fila en blanco: la tuya
+ * al comprobar que quedó publicada, y la de cualquier robot que dé con
+ * la URL, que es pública por obligación.
+ */
 function doGet(e) {
-  return guardar(e && e.parameter ? e.parameter : {});
+  var p = datos(e);
+  if (!p.nombre) {
+    return ContentService
+      .createTextOutput('Puente de confirmaciones activo. ' +
+                        'Esta dirección no se abre a mano: la usa la invitación.')
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+  return guardar(p);
+}
+
+function datos(e) {
+  return (e && e.parameter) ? e.parameter : {};
 }
 
 
 function guardar(p) {
+  // Una confirmación sin nombre no es una confirmación.
+  if (!p.nombre) return respuesta({ ok: false, error: 'sin nombre' });
+
   // Dos invitados confirmando a la vez escribirían en la misma fila.
   // El candado los pone en fila india.
   var lock = LockService.getScriptLock();
