@@ -72,9 +72,9 @@ Los videos se cambian directo en su `<video src="...">` dentro del HTML.
       (`573002436120`). Antes de repartir la invitación, en `CONFIG.whatsapp`:
       `573002436120` → **`573208218053`**. Si no, las confirmaciones de los
       invitados no le llegan a Jorge.
-- [ ] **Google Sheets** — falta publicar el Apps Script y pegar su URL `/exec`
-      en `CONFIG.sheetsUrl`. Son 5 pasos: [`apps-script/README.md`](apps-script/README.md).
-      Hay que hacerlos desde la cuenta de Google dueña de la hoja.
+- [x] **Google Sheets** — publicado y conectado. Comprobado de punta a punta:
+      la invitación escribe en la hoja. Si algún día hay que rehacerlo, los
+      pasos están en [`apps-script/README.md`](apps-script/README.md).
 
 ## 📊 Las confirmaciones
 
