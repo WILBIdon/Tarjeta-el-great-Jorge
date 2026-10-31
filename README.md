@@ -32,7 +32,7 @@ Los dos videos tienen botón discreto de **Saltar**.
 
 | Sección | Detalle |
 |---|---|
-| Mensaje | *Acompáñame a celebrar mis grados* |
+| Mensaje | *Un logro compartido sabe mejor.* · *¡Acompáñame a celebrar mi graduación!* |
 | Frase | *"Para ver un amanecer inolvidable."* |
 | Fecha | Sábado, 5 de diciembre · **6:00 PM** |
 | Lugar | Bárbaro Cocina Primitiva — Rionegro, Antioquia |

@@ -594,6 +594,14 @@
             line-height: 1.35;
             margin: 0 0 0.75rem;
         }
+        /* La primera frase entra como entradilla: más pequeña y más apagada,
+           para que el "acompáñame" siga siendo lo que se lee primero. */
+        .invite-lead {
+            display: block;
+            font-size: 0.78em;
+            color: rgba(255,255,255,0.62);
+            margin-bottom: 0.35em;
+        }
 
 
         .text-gold {
@@ -1478,7 +1486,7 @@
 
             <!-- Invitación + nombre -->
             <div class="name-box reveal reveal-d1">
-                <p class="invite-line">Acompáñame a celebrar<br>mis grados</p>
+                <p class="invite-line"><span class="invite-lead">Un logro compartido sabe mejor.</span>¡Acompáñame a celebrar<br>mi graduación!</p>
 
                 <div class="date-strip">
                     <span class="rule"></span>
