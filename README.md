@@ -1,6 +1,6 @@
-# 🥂 The Great Jorge Eduardo — Invitación de Cumpleaños
+# 🎓 The Great Jorge Eduardo — Invitación de Grados
 
-Invitación virtual estilo **Gran Gatsby / Art Déco** para el cumpleaños de
+Invitación virtual estilo **Gran Gatsby / Art Déco** para los grados de
 **Jorge Eduardo Lopreto Botero** — Sábado 5 de diciembre.
 
 ## El recorrido
@@ -32,14 +32,14 @@ Los dos videos tienen botón discreto de **Saltar**.
 
 | Sección | Detalle |
 |---|---|
-| Mensaje | *Acompáñame a celebrar mi cumpleaños* |
+| Mensaje | *Acompáñame a celebrar mis grados* |
 | Frase | *"Para ver un amanecer inolvidable."* |
 | Fecha | Sábado, 5 de diciembre · **6:00 PM** |
 | Lugar | Bárbaro Cocina Primitiva — Rionegro, Antioquia |
 | Ubicación | QR + enlace https://linktr.ee/UbicacionRionegro |
 | Vestimenta | Caballeros: traje, corbata negra · Damas: vestido largo |
 | Regalo | Lluvia de sobres |
-| RSVP | Formulario → WhatsApp (+ Google Sheets opcional) |
+| RSVP | Nombre + ¿asistirás? + **mensaje para Jorge** → WhatsApp y Google Sheets |
 
 ## Desarrollo local
 
@@ -57,10 +57,10 @@ Todo lo editable está en un solo bloque, al inicio del `<script>` de
 
 ```js
 const CONFIG = {
-    whatsapp:  '573008724559',  // ⚠️ CAMBIAR por el número que recibe las confirmaciones
-    sheetsUrl: '',              // URL del Google Apps Script (opcional)
+    whatsapp:  '573002436120',  // ⚠️ MODO PRUEBA · el de Jorge es 573208218053
+    sheetsUrl: '',              // URL /exec del Apps Script → apps-script/README.md
     music:     'song.m4a?v=3',  // null para quitar la música
-    evento:    'Cumpleaños de Jorge Eduardo · 5 de Diciembre'
+    evento:    'Grados de Jorge Eduardo · 5 de Diciembre'
 };
 ```
 
@@ -68,9 +68,41 @@ Los videos se cambian directo en su `<video src="...">` dentro del HTML.
 
 ### Pendiente antes de enviarla
 
-- [ ] **Número de WhatsApp** — hoy está el de la invitación anterior (`573008724559`).
-- [ ] **Google Sheets** (opcional) — si quieres registrar las confirmaciones en
-      una hoja, pega la URL del Apps Script en `CONFIG.sheetsUrl`.
+- [ ] ⚠️ **Devolver el número de Jorge** — ahora está el de pruebas
+      (`573002436120`). Antes de repartir la invitación, en `CONFIG.whatsapp`:
+      `573002436120` → **`573208218053`**. Si no, las confirmaciones de los
+      invitados no le llegan a Jorge.
+- [ ] **Google Sheets** — falta publicar el Apps Script y pegar su URL `/exec`
+      en `CONFIG.sheetsUrl`. Son 5 pasos: [`apps-script/README.md`](apps-script/README.md).
+      Hay que hacerlos desde la cuenta de Google dueña de la hoja.
+
+## 📊 Las confirmaciones
+
+Cada confirmación sale por dos caminos a la vez, independientes:
+
+1. **WhatsApp** — se abre el chat con el mensaje ya escrito. Funciona
+   siempre, sin configurar nada. Ahora va al número de **pruebas**
+   (`573002436120`); el de Jorge es `573208218053`.
+2. **La hoja de cálculo** — en segundo plano, sin que el invitado note nada.
+   Solo si `CONFIG.sheetsUrl` tiene la URL del Apps Script.
+
+| Fecha | Nombre | Asistencia | Mensaje para Jorge |
+|---|---|---|---|
+| 30/10/2026 19:42 | Ana Pérez | Sí, asistirá | Felicitaciones, allá nos vemos |
+
+El **mensaje para Jorge** es un campo de texto opcional (máximo 300 caracteres,
+con contador). Si el invitado no escribe nada, la confirmación se guarda igual.
+
+El envío a la hoja intenta tres caminos en cascada, porque Apps Script no manda
+cabeceras CORS y no se puede leer la respuesta: `navigator.sendBeacon` →
+`fetch` con `no-cors` y `keepalive` → un GET por `<img>`. Importa que sea
+`sendBeacon`: justo después se abre WhatsApp, y el beacon sobrevive al cambio
+de pestaña.
+
+> **El enlace de la hoja no está en el repositorio, a propósito.** Esto es
+> público y el identificador de una hoja es la llave para abrirla. El script se
+> pega desde el menú de la propia hoja y queda atado a ella sin tener que
+> nombrarla.
 
 ## ⚠️ Caché: el `?v=N`
 
@@ -90,6 +122,47 @@ fondo-gatsby.webp?v=1 · qr-ubicacion.png?v=1 · song.m4a?v=3
 aparezca en `public/index.html`. El HTML nunca se cachea, así que el cambio
 llega de inmediato.
 
+## 🖼️ La vista previa de WhatsApp
+
+Antes el enlace salía sin imagen. La causa no era la caché: era que
+`og:image` apuntaba a `/og-image.jpg`, **una ruta relativa**. El robot de
+WhatsApp exige una URL completa (`https://dominio/og-image.jpg`) y con una
+ruta relativa no descarga nada.
+
+Como el dominio cambia (local, el de Railway, uno propio), el HTML lleva el
+marcador `__BASE__` y [`server.js`](server.js) lo reemplaza por el dominio real
+de cada petición, leyendo `X-Forwarded-Host`. El `Host` lo manda el cliente y
+puede venir envenenado, así que se valida contra un patrón de dominio antes de
+meterlo en el HTML; si no cuadra, se cae a rutas relativas en vez de inyectar.
+
+Se puede forzar un dominio fijo con la variable de entorno `PUBLIC_URL`.
+
+```html
+<meta property="og:image" content="__BASE__/og-image.jpg?v=2">
+       ↓  lo que recibe WhatsApp
+<meta property="og:image" content="https://tu-dominio.up.railway.app/og-image.jpg?v=2">
+```
+
+Y lo tercero: la imagen era **vertical** (560×1003). WhatsApp recorta al centro
+para la miniatura, y el centro de esa imagen es el hueco negro del marco — salía
+un cuadro vacío. Ahora `og-image.jpg` es **1200×630**, recortada de
+`fondo-gatsby.webp` (el original en 1080×1935, no del JPEG ya reducido), con el
+título completo dentro del encuadre.
+
+El `?v=2` es lo segundo: WhatsApp guarda la vista previa de cada enlace durante
+días. Comprobarlo:
+
+```bash
+curl -s https://TU-DOMINIO/ | grep 'og:image'
+```
+
+> ⚠️ **WhatsApp cachea la vista previa por enlace, no por imagen.** Si ya
+> repartiste el link, a quien lo tenga le puede seguir saliendo sin foto. Dos
+> salidas: pasarlo con algo detrás (`https://tu-dominio/?i=1`, que para
+> WhatsApp es otro enlace), o refrescarlo en el
+> [depurador de Facebook](https://developers.facebook.com/tools/debug/) →
+> *Scrape Again*.
+
 ## Archivos
 
 ```
@@ -101,7 +174,14 @@ public/                     16 MB en total
 ├── fondo-gatsby.webp 284 KB Fondo art déco con el título
 ├── qr-ubicacion.png  67 KB QR de la ubicación
 ├── song.m4a        3.5 MB  Sing, Sing, Sing — Benny Goodman (AAC 96 kbps, 5:23)
-└── og-image.jpg    109 KB  Vista previa al compartir por WhatsApp
+├── og-image.jpg    218 KB  Vista previa de WhatsApp · 1200×630
+├── favicon.ico     4.8 KB  Icono de pestaña · 16/32/48
+├── apple-touch-icon.png 13 KB  Pantalla de inicio de iPhone · 180×180
+└── icono-512.png    33 KB  Android y atajos · 512×512
+
+apps-script/                El puente con la hoja de cálculo
+├── Codigo.gs               Pegar en Extensiones → Apps Script de la hoja
+└── README.md               Los 5 pasos para publicarlo
 
 originales/                 Fuera de git: los archivos pesados sin optimizar
                             (ahí está el MP3 entero, con la intro de batería)
@@ -190,6 +270,16 @@ Lo que ya está resuelto en el repo:
 
 En *Settings → Networking → Custom Domain*, y apuntar un CNAME del dominio al
 host que da Railway.
+
+## 🔱 El icono
+
+La **J** de Jorge en Cinzel, con el mismo degradado de oro de la tarjeta, dentro
+de un marco art déco con muescas en chevron.
+
+Hay **dos dibujos, no uno escalado**: el grande (180 y 512 px) lleva doble filete
+y halo; por debajo de 48 px eso se convierte en papilla, así que el `.ico`
+—16, 32 y 48— usa una versión de un solo filete fino con la J mucho mayor. Es
+la diferencia entre que se lea una J y que se vea una mancha dorada.
 
 ## Notas técnicas
 

@@ -4,21 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Great Jorge Eduardo · 5 de Diciembre</title>
-    <meta name="description" content="Acompáñame a celebrar mi cumpleaños — Jorge Eduardo Lopreto Botero · Sábado 5 de Diciembre · Bárbaro Cocina Primitiva, Rionegro">
+    <meta name="description" content="Acompáñame a celebrar mis grados — Jorge Eduardo Lopreto Botero · Sábado 5 de Diciembre · Bárbaro Cocina Primitiva, Rionegro">
 
-    <!-- Open Graph / WhatsApp Preview -->
-    <meta property="og:title" content="Esta es una invitación especial para ti ✨">
-    <meta property="og:description" content="Jorge Eduardo te invita a celebrar su cumpleaños 🥂 Sábado, 5 de Diciembre · 6:00 PM · Bárbaro Cocina Primitiva, Rionegro">
-    <meta property="og:image" content="/og-image.jpg">
-    <meta property="og:image:width" content="560">
-    <meta property="og:image:height" content="1003">
+    <!-- Open Graph / WhatsApp Preview
+         OJO: WhatsApp exige URL ABSOLUTA en og:image. Con "/og-image.jpg" no
+         carga nada. __BASE__ lo reemplaza server.js por https://<dominio real>,
+         así funciona igual en Railway, en un dominio propio y en local. -->
+    <meta property="og:site_name" content="The Great Jorge Eduardo">
+    <meta property="og:locale" content="es_CO">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="__BASE__/">
+    <meta property="og:title" content="Esta es una invitación especial para ti ✨">
+    <meta property="og:description" content="Jorge Eduardo te invita a celebrar sus grados 🎓 Sábado, 5 de Diciembre · 6:00 PM · Bárbaro Cocina Primitiva, Rionegro">
+    <meta property="og:image" content="__BASE__/og-image.jpg?v=2">
+    <meta property="og:image:secure_url" content="__BASE__/og-image.jpg?v=2">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Invitación art déco: The Great Jorge Eduardo">
 
     <!-- Twitter Card (también sirve para iMessage) -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Esta es una invitación especial para ti ✨">
-    <meta name="twitter:description" content="Jorge Eduardo te invita a celebrar su cumpleaños 🥂 Sábado, 5 de Diciembre · 6:00 PM · Bárbaro Cocina Primitiva, Rionegro">
-    <meta name="twitter:image" content="/og-image.jpg">
+    <meta name="twitter:description" content="Jorge Eduardo te invita a celebrar sus grados 🎓 Sábado, 5 de Diciembre · 6:00 PM · Bárbaro Cocina Primitiva, Rionegro">
+    <meta name="twitter:image" content="__BASE__/og-image.jpg?v=2">
+
+    <!-- Icono: la J de Jorge en Cinzel, el mismo oro de la invitación.
+         El .ico lleva 16/32/48 con un marco más simple, porque el doble
+         filete del grande se empasta por debajo de 48 px. -->
+    <link rel="icon" href="/favicon.ico?v=1" sizes="16x16 32x32 48x48">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
+    <meta name="theme-color" content="#0b0905">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1061,6 +1077,24 @@
         .elegant-input::placeholder { color: rgba(255,255,255,0.3); }
         option { background: #0b0905; }
 
+        /* Mensaje para Jorge */
+        .elegant-area {
+            min-height: 96px;
+            resize: vertical;
+            line-height: 1.55;
+            font-size: 0.9rem;
+            margin-bottom: 0.35rem;
+        }
+        .area-contador {
+            margin: 0 0 0.9rem;
+            text-align: right;
+            font-size: 0.66rem;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.26);
+            transition: color 0.3s;
+        }
+        .area-contador.cerca { color: rgba(212,175,55,0.8); }
+
         .btn-modal {
             display: flex; align-items: center; justify-content: center; gap: 9px;
             width: 100%; padding: 0.9rem;
@@ -1444,7 +1478,7 @@
 
             <!-- Invitación + nombre -->
             <div class="name-box reveal reveal-d1">
-                <p class="invite-line">Acompáñame a celebrar<br>mi cumpleaños</p>
+                <p class="invite-line">Acompáñame a celebrar<br>mis grados</p>
 
                 <div class="date-strip">
                     <span class="rule"></span>
@@ -1578,6 +1612,11 @@
                 <option value="no">Lo siento, no podré asistir</option>
             </select>
 
+            <textarea id="input-mensaje" class="elegant-input elegant-area" rows="3"
+                      maxlength="300" oninput="contarMensaje()"
+                      placeholder="Un mensaje para Jorge (opcional)"></textarea>
+            <p class="area-contador" id="contador-mensaje">0 / 300</p>
+
             <button type="submit" class="btn-modal" id="btn-enviar">
                 Enviar Confirmación &nbsp;<i class="fas fa-paper-plane"></i>
             </button>
@@ -1605,10 +1644,15 @@
     ════════════════════════════════════════ */
     const CONFIG = {
         // Número de WhatsApp que recibe las confirmaciones (internacional, sin + ni espacios)
-        whatsapp: '573008724559',
+        // ⚠️ AHORA MISMO ESTÁ EN MODO PRUEBA: las confirmaciones llegan a tu
+        //    teléfono, no al de Jorge. Antes de repartir la invitación hay que
+        //    volver a poner el de Jorge:  573208218053
+        whatsapp: '573002436120',   // pruebas · 300 243 6120
 
         // URL del Google Apps Script que guarda en la hoja de cálculo.
-        // Déjalo en '' si todavía no hay hoja: la confirmación igual llega por WhatsApp.
+        // Es la que termina en /exec, NO el enlace de la hoja.
+        // Cómo sacarla: apps-script/README.md (son 5 pasos, 2 minutos).
+        // Mientras esté en '', la confirmación igual llega por WhatsApp.
         sheetsUrl: '',
 
         // Música de fondo, ya recortada: arranca justo donde entra la banda.
@@ -1617,7 +1661,7 @@
         music: 'song.m4a?v=3',
 
         // Texto que viaja en el mensaje de WhatsApp
-        evento: 'Cumpleaños de Jorge Eduardo · 5 de Diciembre'
+        evento: 'Grados de Jorge Eduardo · 5 de Diciembre'
     };
 
     /* ════════════════════════════════════════
@@ -1955,11 +1999,52 @@
     });
 
     /* ── Confirmación de asistencia ── */
+    /* Contador de caracteres del mensaje */
+    function contarMensaje() {
+        const area = document.getElementById('input-mensaje');
+        const cont = document.getElementById('contador-mensaje');
+        const n    = area.value.length;
+        cont.textContent = n + ' / ' + area.maxLength;
+        cont.classList.toggle('cerca', n > area.maxLength - 50);
+    }
+
+    /* Guardar en la hoja de cálculo.
+       Tres intentos en cascada porque Apps Script no manda cabeceras CORS:
+       no podemos leer la respuesta, solo asegurarnos de que el dato salga.
+         1. sendBeacon — en segundo plano, sobrevive aunque se cambie de pestaña
+            (justo después abrimos WhatsApp, así que esto importa).
+         2. fetch no-cors con keepalive — mismo efecto en navegadores sin beacon.
+         3. GET por <img> — último recurso; el mensaje viaja en la URL, así que
+            se recorta a 300 caracteres para no pasarse del límite. */
+    function enviarAHoja(datos) {
+        if (!CONFIG.sheetsUrl) return;
+        const cuerpo = new URLSearchParams(datos).toString();
+
+        try {
+            const blob = new Blob([cuerpo], { type: 'application/x-www-form-urlencoded' });
+            if (navigator.sendBeacon && navigator.sendBeacon(CONFIG.sheetsUrl, blob)) return;
+        } catch (err) { /* sigue al plan B */ }
+
+        try {
+            fetch(CONFIG.sheetsUrl, {
+                method:  'POST',
+                mode:    'no-cors',
+                keepalive: true,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body:    cuerpo
+            });
+            return;
+        } catch (err) { /* sigue al plan C */ }
+
+        try { new Image().src = CONFIG.sheetsUrl + '?' + cuerpo; } catch (err) {}
+    }
+
     function handleAsistencia(e) {
         e.preventDefault();
         const form       = document.getElementById('form-asistencia');
         const nombre     = document.getElementById('input-nombre').value.trim();
         const asistencia = document.getElementById('input-asistencia').value;
+        const mensaje    = document.getElementById('input-mensaje').value.trim();
         const texto      = asistencia === 'si' ? 'Sí, asistirá' : 'No podrá asistir';
         const fechaHora  = new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' });
 
@@ -1968,21 +2053,19 @@
         btnEnviar.innerHTML = 'Enviando... &nbsp;<i class="fas fa-spinner fa-spin"></i>';
 
         // 1. Google Sheets (opcional)
-        if (CONFIG.sheetsUrl) {
-            try {
-                const params = new URLSearchParams({ nombre, asistencia: texto, fecha: fechaHora }).toString();
-                const img = new Image();
-                img.src = CONFIG.sheetsUrl + '?' + params;
-            } catch (err) { console.log('Sheets error:', err); }
-        }
+        enviarAHoja({ nombre, asistencia: texto, mensaje, fecha: fechaHora });
 
         // 2. WhatsApp
-        const msg = encodeURIComponent(
-            `🥂 *Confirmación de Asistencia*\n*${CONFIG.evento}*\n\n` +
-            `👤 *Nombre:* ${nombre}\n` +
-            `✅ *Asistencia:* ${texto}\n` +
-            `📅 *Confirmado el:* ${new Date().toLocaleDateString('es-CO')}`
-        );
+        const lineas = [
+            `🎓 *Confirmación de Asistencia*`,
+            `*${CONFIG.evento}*`,
+            ``,
+            `👤 *Nombre:* ${nombre}`,
+            `✅ *Asistencia:* ${texto}`
+        ];
+        if (mensaje) lineas.push(``, `💬 *Mensaje para Jorge:*`, mensaje);
+        lineas.push(``, `📅 *Confirmado el:* ${new Date().toLocaleDateString('es-CO')}`);
+        const msg = encodeURIComponent(lineas.join('\n'));
         const whatsappURL = `https://wa.me/${CONFIG.whatsapp}?text=${msg}`;
 
         form.style.transition = 'opacity 0.3s';
