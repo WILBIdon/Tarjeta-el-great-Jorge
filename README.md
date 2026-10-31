@@ -138,10 +138,16 @@ meterlo en el HTML; si no cuadra, se cae a rutas relativas en vez de inyectar.
 Se puede forzar un dominio fijo con la variable de entorno `PUBLIC_URL`.
 
 ```html
-<meta property="og:image" content="__BASE__/og-image.jpg?v=2">
+<meta property="og:image" content="__BASE__/preview.jpg">
        ↓  lo que recibe WhatsApp
-<meta property="og:image" content="https://tu-dominio.up.railway.app/og-image.jpg?v=2">
+<meta property="og:image" content="https://the-great-jorge.up.railway.app/preview.jpg">
 ```
+
+La imagen se sirve como `preview.jpg`, **sin `?v=` detrás**. El truco del
+número de versión vale para lo que pide el navegador, pero en una etiqueta
+`og:image` conviene una ruta limpia: hay clientes que tropiezan con la cadena
+de consulta. Para cambiar la imagen, se sube el nombre: `preview-2.jpg`.
+`og-image.jpg` se queda por si algún enlace viejo lo pide.
 
 Y lo tercero: la imagen era **vertical** (560×1003). WhatsApp recorta al centro
 para la miniatura, y el centro de esa imagen es el hueco negro del marco — salía
@@ -156,12 +162,19 @@ días. Comprobarlo:
 curl -s https://TU-DOMINIO/ | grep 'og:image'
 ```
 
-> ⚠️ **WhatsApp cachea la vista previa por enlace, no por imagen.** Si ya
-> repartiste el link, a quien lo tenga le puede seguir saliendo sin foto. Dos
-> salidas: pasarlo con algo detrás (`https://tu-dominio/?i=1`, que para
-> WhatsApp es otro enlace), o refrescarlo en el
-> [depurador de Facebook](https://developers.facebook.com/tools/debug/) →
-> *Scrape Again*.
+> ⚠️ **La vista previa de WhatsApp la arma el teléfono que envía, no un
+> servidor.** Es la diferencia que importa: la caché está **en el aparato de
+> cada quien**, no en Google ni en Meta. Por eso el depurador de Facebook no
+> sirve de nada aquí — ese refresca la caché de Facebook, que WhatsApp no usa.
+>
+> Consecuencia práctica: si pegaste el enlace cuando la imagen estaba rota, tu
+> teléfono se quedó con ese "aquí no hay nada" y te lo va a seguir enseñando
+> por mucho que el servidor esté bien. La salida es darle un enlace que no haya
+> visto nunca: `https://the-great-jorge.up.railway.app/?i=2`. Para WhatsApp es
+> otro enlace; para el servidor es la misma página, porque la parte de después
+> del `?` se ignora.
+>
+> A quien **nunca** lo haya recibido le sale bien a la primera.
 
 ## Archivos
 
