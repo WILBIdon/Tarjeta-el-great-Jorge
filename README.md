@@ -57,7 +57,7 @@ Todo lo editable está en un solo bloque, al inicio del `<script>` de
 
 ```js
 const CONFIG = {
-    whatsapp:  '573002436120',  // ⚠️ MODO PRUEBA · el de Jorge es 573208218053
+    whatsapp:  '573208218053',  // Jorge · 320 821 8053
     sheetsUrl: '',              // URL /exec del Apps Script → apps-script/README.md
     music:     'song.m4a?v=3',  // null para quitar la música
     evento:    'Grados de Jorge Eduardo · 5 de Diciembre'
@@ -68,10 +68,7 @@ Los videos se cambian directo en su `<video src="...">` dentro del HTML.
 
 ### Pendiente antes de enviarla
 
-- [ ] ⚠️ **Devolver el número de Jorge** — ahora está el de pruebas
-      (`573002436120`). Antes de repartir la invitación, en `CONFIG.whatsapp`:
-      `573002436120` → **`573208218053`**. Si no, las confirmaciones de los
-      invitados no le llegan a Jorge.
+- [x] **Número de WhatsApp** — `573208218053` (320 821 8053), el de Jorge.
 - [x] **Google Sheets** — publicado y conectado. Comprobado de punta a punta:
       la invitación escribe en la hoja. Si algún día hay que rehacerlo, los
       pasos están en [`apps-script/README.md`](apps-script/README.md).
@@ -80,9 +77,8 @@ Los videos se cambian directo en su `<video src="...">` dentro del HTML.
 
 Cada confirmación sale por dos caminos a la vez, independientes:
 
-1. **WhatsApp** — se abre el chat con el mensaje ya escrito. Funciona
-   siempre, sin configurar nada. Ahora va al número de **pruebas**
-   (`573002436120`); el de Jorge es `573208218053`.
+1. **WhatsApp** al `573208218053` — se abre el chat con el mensaje ya
+   escrito. Funciona siempre, sin configurar nada.
 2. **La hoja de cálculo** — en segundo plano, sin que el invitado note nada.
    Solo si `CONFIG.sheetsUrl` tiene la URL del Apps Script.
 
